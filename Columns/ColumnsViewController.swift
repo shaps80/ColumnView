@@ -116,11 +116,24 @@ open class ColumnsViewController: UIViewController {
         invalidateController(animated: false)
     }
     
+    /// Pushes a view controller onto the receiver’s stack and updates the display.
+    ///
+    /// The object in the viewController parameter becomes the top view controller on the navigation stack. Pushing a view controller causes its view to be embedded in the navigation interface. If the animated parameter is true, the view is animated into position; otherwise, the view is simply displayed in its final location.
+    /// In addition to displaying the view associated with the new view controller at the top of the stack, this method also updates the navigation bar and tool bar accordingly
+    
+    /// - Parameter viewController: The view controller to push onto the stack.
+    /// - Parameter animated: Specify true to animate the transition or false if you do not want the transition to be animated. You might specify false if you are setting up the controller at launch time.
     open func pushViewController(_ viewController: UIViewController, animated: Bool) {
         addChildren([viewController])
         invalidateController(animated: animated)
     }
     
+    /// Pops the top view controller from the navigation stack and updates the display.
+    ///
+    /// This method removes the top view controller from the stack and makes the new top of the stack the active view controller. If the view controller at the top of the stack is the root view controller, this method does nothing. In other words, you cannot pop the last item on the stack.
+    /// In addition to displaying the view associated with the new view controller at the top of the stack, this method also updates the navigation bar and tool bar accordingly
+    ///
+    /// - Parameter animated: Set this value to true to animate the transition. Pass false if you are setting up a controller before its view is displayed.
     @discardableResult
     open func popViewController(animated: Bool) -> UIViewController? {
         guard let index = _viewControllers.indices.last else { return nil }
@@ -129,6 +142,12 @@ open class ColumnsViewController: UIViewController {
         return controllers.first
     }
     
+    /// Pops view controllers until the specified view controller is at the top of the navigation stack.
+    ///
+    /// In addition to displaying the view associated with the new view controller at the top of the stack, this method also updates the navigation bar and tool bar accordingly
+    ///
+    /// - Parameter viewController: The view controller that you want to be at the top of the stack. This view controller must currently be on the navigation stack.
+    /// - Parameter animated: Set this value to true to animate the transition. Pass false if you are setting up a controller before its view is displayed.
     @discardableResult
     open func popToViewController(_ viewController: UIViewController, animated: Bool) -> [UIViewController]? {
         guard let index = _viewControllers.firstIndex(where: { viewController === $0 }) else { return nil }
@@ -137,6 +156,11 @@ open class ColumnsViewController: UIViewController {
         return controllers
     }
     
+    /// Pops all the view controllers on the stack except the root view controller and updates the display.
+    ///
+    /// In addition to displaying the view associated with the new view controller at the top of the stack, this method also updates the navigation bar and tool bar accordingly
+    ///
+    /// - Parameter animated: et this value to true to animate the transition. Pass false if you are setting up a controller before its view is displayed.
     @discardableResult
     open func popToRootViewController(animated: Bool) -> [UIViewController]? {
         guard _viewControllers.count > 1 else { return nil }
