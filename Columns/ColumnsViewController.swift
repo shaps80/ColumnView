@@ -1,8 +1,18 @@
 import UIKit
 
+/// For most cases you should use the `ColumnsController` class since it automatically manages a UINavigationController as well.
+/// However if preferred, you can also use this class directly to present a horizontally stacked set of controllers that
+/// behaves similarly to UINavigationController but with a presentation closer to column view in Finder or Files (iOS 13)
 open class ColumnsViewController: UIViewController {
     
-    open var columnWidth: CGFloat = 350
+    /// The width to use for each column that presents a controller
+    open var columnWidth: CGFloat = 350 {
+        didSet {
+            invalidateLayout()
+        }
+    }
+    
+    /// The thickness to use for the separator in-between each controller
     open var separatorThickness: CGFloat = {
         return 1 / UIScreen.main.scale
         }() {
@@ -11,32 +21,41 @@ open class ColumnsViewController: UIViewController {
         }
     }
     
-    open var automaticallyAdjustsNavigationItems: Bool = true
-    open var automaticallyAdjustsToolbarItems: Bool = true
-    
+    /// The color to use for the seperator in-between each controller
     open var separatorColor: UIColor = {
         if #available(iOSApplicationExtension 13.0, *) {
             return UIColor.opaqueSeparator
         } else {
             return UIColor(white: 214/255, alpha: 1)
         }
-    }() {
+        }() {
         didSet {
             separatorViews.forEach { $0.backgroundColor = separatorColor }
         }
     }
     
-    private var _separatorView: UIView {
+    /// If true, navigation elements will automatically update as controllers are pushed/popped. Defaults to true
+    open var automaticallyAdjustsNavigationItems: Bool = true
+    /// If true, toolbar elements will automatically update as controllers are pushed/popped. Defaults to true
+    open var automaticallyAdjustsToolbarItems: Bool = true
+    
+    /// The cached separator views
+    private var separatorViews: [UIView] = []
+    
+    /// Makes a new separator view
+    private func makeSeparatorView() -> UIView {
         let view = UIView(frame: .zero)
         view.backgroundColor = separatorColor
         view.autoresizingMask = .flexibleHeight
         return view
     }
     
+    /// The view controller at the top of the navigation stack
     open var topViewController: UIViewController? {
         return _viewControllers.last
     }
     
+    /// The view controllers that are currently visible in the navigation interface
     open var visibleViewControllers: [UIViewController] {
         return _viewControllers.lazy
             .enumerated()
@@ -45,12 +64,15 @@ open class ColumnsViewController: UIViewController {
     }
     
     private var _viewControllers: [UIViewController] = []
+    
+    /// The view controllers currently on the navigation stack.
+    ///
+    /// The root view controller is at index 0 in the array, the back view controller is at index n-2, and the top controller is at index n-1, where n is the number of items in the array.
+    /// Assigning a new array of view controllers to this property is equivalent to calling the setViewControllers(_:animated:) method with the animated parameter set to false.
     open var viewControllers: [UIViewController] {
         get { return _viewControllers }
         set { setViewControllers(newValue, animated: false) }
     }
-    
-    private var separatorViews: [UIView] = []
     
     private var columnsView: ColumnsLayoutView {
         return view as! ColumnsLayoutView
@@ -123,12 +145,19 @@ open class ColumnsViewController: UIViewController {
         return controllers
     }
     
+    /// Replaces the view controllers currently managed by the navigation controller with the specified items
+    ///
+    /// Use this method to update or replace the current view controller stack without pushing or popping each controller explicitly. In addition, this method lets you update the set of controllers without animating the changes, which might be appropriate at launch time when you want to return the navigation controller to a previous state.
+    ///
+    /// - Parameter viewControllers: The view controllers to place in the stack. The front-to-back order of the controllers in this array represents the new bottom-to-top order of the controllers in the navigation stack. Thus, the last item added to the array becomes the top item of the navigation stack.
+    /// - Parameter animated: If true, animate the pushing or popping of the top view controller. If false, replace the view controllers without any animations
     open func setViewControllers(_ viewControllers: [UIViewController], animated: Bool) {
         removeChildren(including: 0) // remove any existing children so they get released correctly
         addChildren(viewControllers)
         invalidateController(animated: animated)
     }
     
+    /// Interpreted as pushViewController:animated:
     open override func show(_ vc: UIViewController, sender: Any?) {
         pushViewController(vc, animated: true)
     }
@@ -137,6 +166,9 @@ open class ColumnsViewController: UIViewController {
     /// We store them until viewDidLoad so we don't force a load on each of the controllers unnecessarily
     private var pendingChildren: [UIViewController] = []
     
+    /// Adds the specified children to the navigatio stack.
+    ///
+    /// This function is responsible for setting up the parent-child relationship as well as updating the layout and separators
     private func addChildren(_ children: [UIViewController]) {
         guard isViewLoaded else {
             pendingChildren.append(contentsOf: children)
@@ -156,7 +188,7 @@ open class ColumnsViewController: UIViewController {
             let y = child.view.frame.minY
             let w = separatorThickness
             let h = child.view.frame.height
-            let separator = _separatorView
+            let separator = makeSeparatorView()
             separator.frame = CGRect(x: x, y: y, width: w, height: h)
             columnsView.addSubview(separator)
             
@@ -166,6 +198,9 @@ open class ColumnsViewController: UIViewController {
         invalidateBarItems()
     }
     
+    /// Removes all children after (and including) the specified index from the navigation stack.
+    ///
+    /// This function is responsible for severing the parent-child relationship as well as updating the layout and removing separators
     @discardableResult
     private func removeChildren(including index: Int) -> [UIViewController] {
         guard isViewLoaded else {
@@ -200,6 +235,7 @@ open class ColumnsViewController: UIViewController {
         return Array(controllers)
     }
     
+    /// Returns the frame for the controller at the specified index
     private func frameForController(at index: Int) -> CGRect {
         guard isViewLoaded else { return .zero }
         var frame = CGRect(origin: .zero, size: view.bounds.size)
@@ -209,16 +245,19 @@ open class ColumnsViewController: UIViewController {
         return frame
     }
     
+    /// Updates the contentSize and scrolls the top most controller into view
     private func invalidateController(animated: Bool) {
         invalidateContentSize(animated: animated)
         guard columnsView.contentSize.width > columnsView.bounds.width else { return }
         _viewControllers.last.map { scroll(to: $0, animated: animated) }
     }
     
+    /// Scrolls the specified controller into view
     private func scroll(to controller: UIViewController, animated: Bool) {
         columnsView.scrollRectToVisible(controller.view.frame, animated: animated)
     }
     
+    /// Updates the content size
     private func invalidateContentSize(animated: Bool) {
         var contentSize: CGSize = .zero
         contentSize.height = 1 // need to >0 to ensure scrolling works
@@ -231,6 +270,7 @@ open class ColumnsViewController: UIViewController {
         }
     }
     
+    /// Updates the layout for all controllers and their associated separators
     private func invalidateLayout() {
         // if views were added before our layout, we need to update their frames
         _viewControllers.enumerated().forEach {
@@ -251,8 +291,10 @@ open class ColumnsViewController: UIViewController {
         removeObservers()
     }
     
+    /// Retains the observers for all navigation and toolbar elements of the top most controller
     private var observers: [NSKeyValueObservation?] = []
     
+    /// Removes all retained observers and invalidates them
     private func removeObservers() {
         observers.forEach { $0?.invalidate() }
         observers.removeAll()
@@ -292,11 +334,14 @@ open class ColumnsViewController: UIViewController {
         }
         
         if automaticallyAdjustsToolbarItems {
-            toolbarItems = _viewControllers.last?.toolbarItems
+            observers.append(controller?.observe(\.toolbarItems, options: [.initial, .new]) { [weak self] controller, _ in
+                self?.toolbarItems = controller.toolbarItems
+            })
         }
     }
     
     open override func viewWillTransition(to size: CGSize, with coordinator: UIViewControllerTransitionCoordinator) {
+        // When we rotate or change size classes, we try and scroll the most visible items back into view.
         coordinator.animate(alongsideTransition: { context in
             self.visibleViewControllers.last.map {
                 self.scroll(to: $0, animated: context.isAnimated)
@@ -306,6 +351,7 @@ open class ColumnsViewController: UIViewController {
     
 }
 
+/// An internal layout view that provides a basic horizontally stacked layout
 private final class ColumnsLayoutView: UIScrollView {
     
     override init(frame: CGRect) {

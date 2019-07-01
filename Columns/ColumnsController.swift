@@ -1,7 +1,14 @@
 import UIKit
 
+/// ColumnsController managed a stack of view controllers similarly to a UINavigationController
+/// It uses a standard navigation controller when horizontally compact, otherwise it utilizes
+/// a stacked horizontal layout similar to the column view in Finder or Files (iOS 13).
+///
+/// Titles, navigation items and toolbar items are automatically managed to allow you to work with existing code.
+/// In 99% of cases, updating your navigation controllers to use this subclass should be enough.
 open class ColumnsController: UINavigationController {
     
+    /// The underlying view controller that provides the stacked horizontal layout. This can be used to configure its settings.
     open private(set) lazy var columnsViewController: ColumnsViewController = {
         return ColumnsViewController(nibName: nil, bundle: nil)
     }()
@@ -44,6 +51,7 @@ open class ColumnsController: UINavigationController {
         }
     }
     
+    /// A convenience property that returns the current number of children, regardless of their current presentation
     open var childCount: Int {
         return isCollapsed ? viewControllers.count : columnsViewController.viewControllers.count
     }
