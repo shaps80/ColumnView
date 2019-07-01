@@ -3,7 +3,7 @@ import UIKit
 open class ColumnsViewController: UIViewController {
     
     open var columnWidth: CGFloat = 350
-    open var separatorWidth: CGFloat = {
+    open var separatorThickness: CGFloat = {
         return 1 / UIScreen.main.scale
         }() {
         didSet {
@@ -154,7 +154,7 @@ open class ColumnsViewController: UIViewController {
             
             let x = child.view.frame.maxX
             let y = child.view.frame.minY
-            let w = separatorWidth
+            let w = separatorThickness
             let h = child.view.frame.height
             let separator = _separatorView
             separator.frame = CGRect(x: x, y: y, width: w, height: h)
@@ -204,7 +204,7 @@ open class ColumnsViewController: UIViewController {
         guard isViewLoaded else { return .zero }
         var frame = CGRect(origin: .zero, size: view.bounds.size)
         frame.origin.x += CGFloat(index) * columnWidth
-        frame.origin.x += CGFloat(index) * separatorWidth
+        frame.origin.x += CGFloat(index) * separatorThickness
         frame.size.width = columnWidth
         return frame
     }
@@ -224,7 +224,7 @@ open class ColumnsViewController: UIViewController {
         contentSize.height = 1 // need to >0 to ensure scrolling works
         contentSize.width =
             (columnWidth * CGFloat(_viewControllers.count))
-            + (separatorWidth * CGFloat(_viewControllers.count))
+            + (separatorThickness * CGFloat(_viewControllers.count))
         
         UIView.animate(withDuration: 0.2) {
             self.columnsView.contentSize = contentSize
@@ -239,7 +239,7 @@ open class ColumnsViewController: UIViewController {
             let separator = separatorViews[$0.offset]
             let x = $0.element.view.frame.maxX
             let y = $0.element.view.frame.minY
-            let w = separatorWidth
+            let w = separatorThickness
             let h = $0.element.view.frame.height
             separator.frame = CGRect(x: x, y: y, width: w, height: h)
         }
