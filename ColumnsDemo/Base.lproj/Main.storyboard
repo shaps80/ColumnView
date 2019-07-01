@@ -3,38 +3,9 @@
     <device id="retina6_1" orientation="portrait" appearance="light"/>
     <dependencies>
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="14766.15"/>
-        <capability name="Safe area layout guides" minToolsVersion="9.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <scenes>
-        <!--Columns Layout View Controller-->
-        <scene sceneID="tne-QT-ifu">
-            <objects>
-                <viewController id="BYZ-38-t0r" customClass="ColumnsLayoutViewController" customModule="Columns" sceneMemberID="viewController">
-                    <view key="view" contentMode="scaleToFill" id="8bC-Xf-vdC">
-                        <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
-                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
-                        <subviews>
-                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="dC7-KI-4MI">
-                                <rect key="frame" x="186" y="437.5" width="42" height="21"/>
-                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
-                                <nil key="textColor"/>
-                                <nil key="highlightedColor"/>
-                            </label>
-                        </subviews>
-                        <color key="backgroundColor" xcode11CocoaTouchSystemColor="systemBackgroundColor" cocoaTouchSystemColor="whiteColor"/>
-                        <constraints>
-                            <constraint firstItem="dC7-KI-4MI" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" id="Nij-ME-9BN"/>
-                            <constraint firstItem="dC7-KI-4MI" firstAttribute="centerY" secondItem="8bC-Xf-vdC" secondAttribute="centerY" id="d3L-iX-DCv"/>
-                        </constraints>
-                        <viewLayoutGuide key="safeArea" id="6Tk-OE-BBY"/>
-                    </view>
-                    <navigationItem key="navigationItem" id="Ndu-4q-sdv"/>
-                </viewController>
-                <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
-            </objects>
-            <point key="canvasLocation" x="1047.8260869565217" y="116.51785714285714"/>
-        </scene>
         <!--Table View Controller-->
         <scene sceneID="IYl-ok-Rgf">
             <objects>
@@ -201,7 +172,7 @@
                             <tableViewSection id="9Zp-a3-dT1">
                                 <cells>
                                     <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" selectionStyle="default" indentationWidth="10" id="8mw-qz-cC7">
-                                        <rect key="frame" x="20" y="850" width="374" height="44"/>
+                                        <rect key="frame" x="0.0" y="850" width="374" height="44"/>
                                         <autoresizingMask key="autoresizingMask"/>
                                         <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" preservesSuperviewLayoutMargins="YES" insetsLayoutMarginsFromSafeArea="NO" tableViewCell="8mw-qz-cC7" id="GEE-76-wyP">
                                             <rect key="frame" x="0.0" y="0.0" width="374" height="44"/>
@@ -316,10 +287,11 @@
                             <outlet property="delegate" destination="Nrd-LR-eWn" id="ScS-NJ-0Np"/>
                         </connections>
                     </tableView>
+                    <navigationItem key="navigationItem" id="cEG-Xb-COr"/>
                 </tableViewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="ZUk-sY-XiX" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="1767" y="-43"/>
+            <point key="canvasLocation" x="891" y="117"/>
         </scene>
         <!--Columns Controller-->
         <scene sceneID="I42-N0-0rm">
@@ -332,7 +304,7 @@
                     </navigationBar>
                     <nil name="viewControllers"/>
                     <connections>
-                        <segue destination="BYZ-38-t0r" kind="relationship" relationship="rootViewController" id="bIl-d3-AXv"/>
+                        <segue destination="Nrd-LR-eWn" kind="relationship" relationship="rootViewController" id="rLH-xN-2Uh"/>
                     </connections>
                 </navigationController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="Wlg-qM-0rA" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>

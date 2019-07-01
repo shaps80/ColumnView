@@ -1,25 +1,11 @@
 import UIKit
 
-public extension UIViewController {
-    var columnsController: ColumnsLayoutViewController? {
-        return parent as? ColumnsLayoutViewController
-    }
-}
-
-open class ColumnsController: UINavigationController {
-    
-    private lazy var _internalNav: UINavigationController = {
-        return UINavigationController(nibName: nil, bundle: nil)
-    }()
-    
-}
-
-open class ColumnsLayoutViewController: UIViewController {
+open class ColumnsViewController: UIViewController {
     
     open var columnWidth: CGFloat = 350
     open var separatorWidth: CGFloat = {
         return 1 / UIScreen.main.scale
-    }() {
+        }() {
         didSet {
             invalidateLayout()
         }
@@ -34,13 +20,13 @@ open class ColumnsLayoutViewController: UIViewController {
         } else {
             return UIColor(white: 214/255, alpha: 1)
         }
-    }() {
+        }() {
         didSet {
             separatorViews.forEach { $0.backgroundColor = separatorColor }
         }
     }
     
-    open var _separatorView: UIView {
+    private var _separatorView: UIView {
         let view = UIView(frame: .zero)
         view.backgroundColor = separatorColor
         view.autoresizingMask = .flexibleHeight
@@ -48,26 +34,35 @@ open class ColumnsLayoutViewController: UIViewController {
     }
     
     open var topViewController: UIViewController? {
-        return viewControllers.last
+        return _viewControllers.last
     }
     
     open var visibleViewControllers: [UIViewController] {
-        return viewControllers.lazy
+        return _viewControllers.lazy
             .enumerated()
             .filter { columnsView.bounds.intersects(frameForController(at: $0.offset)) }
             .map { $0.element }
     }
     
-    open var viewControllers: [UIViewController] = []
+    private var _viewControllers: [UIViewController] = []
+    open var viewControllers: [UIViewController] {
+        get { return _viewControllers }
+        set { setViewControllers(newValue, animated: false) }
+    }
+    
     private var separatorViews: [UIView] = []
     
     private var columnsView: ColumnsLayoutView {
         return view as! ColumnsLayoutView
     }
     
+    public override init(nibName nibNameOrNil: String?, bundle nibBundleOrNil: Bundle?) {
+        super.init(nibName: nibNameOrNil, bundle: nibBundleOrNil)
+    }
+    
     public init(rootViewController: UIViewController) {
         super.init(nibName: nil, bundle: nil)
-        pushViewController(rootViewController, animated: false)
+        addChildren([rootViewController])
     }
     
     public required init?(coder: NSCoder) {
@@ -76,10 +71,14 @@ open class ColumnsLayoutViewController: UIViewController {
     
     public override func loadView() {
         super.loadView()
-        let original = super.view
-        
         view = ColumnsLayoutView(frame: .zero)
-        view.backgroundColor = original?.backgroundColor
+    }
+    
+    open override func viewDidLoad() {
+        super.viewDidLoad()
+        
+        addChildren(pendingChildren)
+        pendingChildren.removeAll()
     }
     
     private var _initialLayout: Bool = true
@@ -102,29 +101,30 @@ open class ColumnsLayoutViewController: UIViewController {
     
     @discardableResult
     open func popViewController(animated: Bool) -> UIViewController? {
-        guard let index = viewControllers.indices.last else { return nil }
-        let controllers = removeChildren(after: index)
+        guard let index = _viewControllers.indices.last else { return nil }
+        let controllers = removeChildren(including: index)
         invalidateController(animated: animated)
         return controllers.first
     }
     
     @discardableResult
     open func popToViewController(_ viewController: UIViewController, animated: Bool) -> [UIViewController]? {
-        guard let index = viewControllers.firstIndex(where: { viewController === $0 }) else { return nil }
-        let controllers = removeChildren(after: viewControllers.index(after: index))
+        guard let index = _viewControllers.firstIndex(where: { viewController === $0 }) else { return nil }
+        let controllers = removeChildren(including: _viewControllers.index(after: index))
         invalidateController(animated: animated)
         return controllers
     }
     
     @discardableResult
     open func popToRootViewController(animated: Bool) -> [UIViewController]? {
-        guard viewControllers.count > 1 else { return nil }
-        let controllers = removeChildren(after: 1)
+        guard _viewControllers.count > 1 else { return nil }
+        let controllers = removeChildren(including: 1)
         invalidateController(animated: animated)
         return controllers
     }
     
     open func setViewControllers(_ viewControllers: [UIViewController], animated: Bool) {
+        removeChildren(including: 0) // remove any existing children so they get released correctly
         addChildren(viewControllers)
         invalidateController(animated: animated)
     }
@@ -133,19 +133,29 @@ open class ColumnsLayoutViewController: UIViewController {
         pushViewController(vc, animated: true)
     }
     
+    /// This represents children that are added before the view is even loaded.
+    /// We store them until viewDidLoad so we don't force a load on each of the controllers unnecessarily
+    private var pendingChildren: [UIViewController] = []
+    
     private func addChildren(_ children: [UIViewController]) {
-        children.forEach {
-            addChild($0)
-            $0.view.frame = frameForController(at: viewControllers.count)
-            $0.view.autoresizingMask = .flexibleHeight
-            columnsView.addSubview($0.view)
-            $0.didMove(toParent: self)
-            viewControllers.append($0)
+        guard isViewLoaded else {
+            pendingChildren.append(contentsOf: children)
+            return
+        }
+        
+        for child in children {
+            _viewControllers.append(child)
             
-            let x = $0.view.frame.maxX
-            let y = $0.view.frame.minY
+            addChild(child)
+            child.view.frame = frameForController(at: _viewControllers.count - 1)
+            child.view.autoresizingMask = .flexibleHeight
+            columnsView.addSubview(child.view)
+            child.didMove(toParent: self)
+            
+            let x = child.view.frame.maxX
+            let y = child.view.frame.minY
             let w = separatorWidth
-            let h = $0.view.frame.height
+            let h = child.view.frame.height
             let separator = _separatorView
             separator.frame = CGRect(x: x, y: y, width: w, height: h)
             columnsView.addSubview(separator)
@@ -156,11 +166,21 @@ open class ColumnsLayoutViewController: UIViewController {
         invalidateBarItems()
     }
     
-    private func removeChildren(after index: Int) -> [UIViewController] {
-        guard viewControllers.indices.contains(index) else { return [] }
-        let range = index..<viewControllers.count
+    @discardableResult
+    private func removeChildren(including index: Int) -> [UIViewController] {
+        guard isViewLoaded else {
+            guard pendingChildren.indices.contains(index) else { return [] }
+            let range = index..<pendingChildren.count
+            pendingChildren.removeSubrange(range)
+            return []
+        }
+        
+        guard _viewControllers.indices.contains(index) else { return [] }
+        removeObservers()
+        
+        let range = index..<_viewControllers.count
         let separators = separatorViews[range]
-        let controllers = viewControllers[range]
+        let controllers = _viewControllers[range]
         
         separators.forEach {
             $0.removeFromSuperview()
@@ -172,7 +192,7 @@ open class ColumnsLayoutViewController: UIViewController {
             $0.removeFromParent()
         }
         
-        viewControllers.removeSubrange(range)
+        _viewControllers.removeSubrange(range)
         separatorViews.removeSubrange(range)
         
         invalidateBarItems()
@@ -192,7 +212,7 @@ open class ColumnsLayoutViewController: UIViewController {
     private func invalidateController(animated: Bool) {
         invalidateContentSize(animated: animated)
         guard columnsView.contentSize.width > columnsView.bounds.width else { return }
-        viewControllers.last.map { scroll(to: $0, animated: animated) }
+        _viewControllers.last.map { scroll(to: $0, animated: animated) }
     }
     
     private func scroll(to controller: UIViewController, animated: Bool) {
@@ -203,8 +223,8 @@ open class ColumnsLayoutViewController: UIViewController {
         var contentSize: CGSize = .zero
         contentSize.height = 1 // need to >0 to ensure scrolling works
         contentSize.width =
-            (columnWidth * CGFloat(viewControllers.count))
-            + (separatorWidth * CGFloat(viewControllers.count))
+            (columnWidth * CGFloat(_viewControllers.count))
+            + (separatorWidth * CGFloat(_viewControllers.count))
         
         UIView.animate(withDuration: 0.2) {
             self.columnsView.contentSize = contentSize
@@ -213,7 +233,7 @@ open class ColumnsLayoutViewController: UIViewController {
     
     private func invalidateLayout() {
         // if views were added before our layout, we need to update their frames
-        viewControllers.enumerated().forEach {
+        _viewControllers.enumerated().forEach {
             $0.element.view.frame = frameForController(at: $0.offset)
             
             let separator = separatorViews[$0.offset]
@@ -227,19 +247,52 @@ open class ColumnsLayoutViewController: UIViewController {
         invalidateContentSize(animated: false)
     }
     
+    deinit {
+        removeObservers()
+    }
+    
+    private var observers: [NSKeyValueObservation?] = []
+    
+    private func removeObservers() {
+        observers.forEach { $0?.invalidate() }
+        observers.removeAll()
+    }
+    
     private func invalidateBarItems() {
+        let controller = _viewControllers.last
+        
         if automaticallyAdjustsNavigationItems {
-            title = viewControllers.last?.title
-            navigationItem.title = title
-            navigationItem.leftBarButtonItems = viewControllers.last?.navigationItem.leftBarButtonItems
-            navigationItem.rightBarButtonItems = viewControllers.last?.navigationItem.rightBarButtonItems
-            navigationItem.titleView = viewControllers.last?.navigationItem.titleView
-            navigationItem.backBarButtonItem = viewControllers.last?.navigationItem.backBarButtonItem
-            navigationItem.leftItemsSupplementBackButton = viewControllers.last?.navigationItem.leftItemsSupplementBackButton ?? false
+            observers.append(controller?.observe(\.title, options: [.initial, .new]) { [weak self] controller, _ in
+                self?.title = controller.title
+            })
+            
+            observers.append(controller?.observe(\.navigationItem.title, options: [.initial, .new]) { [weak self] controller, _ in
+                self?.navigationItem.title = controller.navigationItem.title
+            })
+            
+            observers.append(controller?.observe(\.navigationItem.leftBarButtonItem, options: [.initial, .new]) { [weak self] controller, _ in
+                self?.navigationItem.leftBarButtonItem = controller.navigationItem.leftBarButtonItem
+            })
+            
+            observers.append(controller?.observe(\.navigationItem.rightBarButtonItem, options: [.initial, .new]) { [weak self] controller, _ in
+                self?.navigationItem.rightBarButtonItem = controller.navigationItem.rightBarButtonItem
+            })
+            
+            observers.append(controller?.observe(\.navigationItem.leftBarButtonItems, options: [.initial, .new]) { [weak self] controller, _ in
+                self?.navigationItem.leftBarButtonItems = controller.navigationItem.leftBarButtonItems
+            })
+            
+            observers.append(controller?.observe(\.navigationItem.rightBarButtonItems, options: [.initial, .new]) { [weak self] controller, _ in
+                self?.navigationItem.rightBarButtonItems = controller.navigationItem.rightBarButtonItems
+            })
+            
+            observers.append(controller?.observe(\.navigationItem.titleView, options: [.initial, .new]) { [weak self] controller, _ in
+                self?.navigationItem.titleView = controller.navigationItem.titleView
+            })
         }
         
         if automaticallyAdjustsToolbarItems {
-            toolbarItems = viewControllers.last?.toolbarItems
+            toolbarItems = _viewControllers.last?.toolbarItems
         }
     }
     
