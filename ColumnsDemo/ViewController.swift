@@ -38,12 +38,6 @@ final class TableViewController: UITableViewController {
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
         tableView.showsVerticalScrollIndicator = true
-        print("Appeared")
-    }
-    
-    override func viewDidDisappear(_ animated: Bool) {
-        super.viewDidDisappear(animated)
-        print("Disappeared")
     }
     
 }

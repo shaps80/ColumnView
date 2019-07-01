@@ -20,7 +20,7 @@ open class ColumnsViewController: UIViewController {
         } else {
             return UIColor(white: 214/255, alpha: 1)
         }
-        }() {
+    }() {
         didSet {
             separatorViews.forEach { $0.backgroundColor = separatorColor }
         }
