@@ -18,10 +18,10 @@ This repo contains 2 main class types:
 For a relatively simple solution, plenty of features are included nonetheless:
 
 Familiar API
-- pushViewController
-- popViewController
-- popToViewController
-- popToRootViewController
+- `pushViewController`
+- `popViewController`
+- `popToViewController`
+- `popToRootViewController`
 
 Customizations
 - Column width
