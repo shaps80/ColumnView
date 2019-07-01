@@ -13,6 +13,8 @@ This repo contains 2 main class types:
 
 > For a custom solution that's not dependany on a navigation controller, you can use this class which provides th horizontally stacked controller implementation. This is useful for example when you want to embed a navigation controller into each column.
 
+Download the repo and run the example project to see it in action.
+
 ## Features
 
 For a relatively simple solution, plenty of features are included nonetheless:
