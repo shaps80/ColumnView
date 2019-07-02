@@ -6,7 +6,7 @@ import UIKit
 open class ColumnsViewController: UIViewController {
     
     /// The width to use for each column that presents a controller
-    open var columnWidth: CGFloat = 350 {
+    open var columnWidth: CGFloat = 320 {
         didSet {
             invalidateLayout()
         }
