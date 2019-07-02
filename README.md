@@ -1,6 +1,6 @@
 # Column View
 
-<img src="sample.gif" width="50%" height="50%" alt="Sample video of my column view navigation controller" />
+![Sample video of my column view navigation controller](sample.gif)
 
 This framework contains a Files-inspired implementation of a 'Column View' layout. Also similar to what's found in Finder on macOS.
 
