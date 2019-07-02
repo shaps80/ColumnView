@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="14810.12" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="pSI-d9-JQd">
-    <device id="retina6_1" orientation="portrait" appearance="light"/>
     <dependencies>
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="14766.15"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
@@ -192,10 +191,10 @@
             </objects>
             <point key="canvasLocation" x="2286.9565217391305" y="116.51785714285714"/>
         </scene>
-        <!--Columns Controller-->
+        <!--Column View Navigation Controller-->
         <scene sceneID="I42-N0-0rm">
             <objects>
-                <navigationController automaticallyAdjustsScrollViewInsets="NO" id="pSI-d9-JQd" customClass="ColumnsController" customModule="Columns" sceneMemberID="viewController">
+                <navigationController automaticallyAdjustsScrollViewInsets="NO" id="pSI-d9-JQd" customClass="ColumnViewNavigationController" customModule="Columns" sceneMemberID="viewController">
                     <toolbarItems/>
                     <navigationBar key="navigationBar" contentMode="scaleToFill" insetsLayoutMarginsFromSafeArea="NO" id="GOx-nw-iLi">
                         <rect key="frame" x="0.0" y="44" width="414" height="44"/>

@@ -14,8 +14,8 @@
 		542F025F22CA41F8000FEF00 /* Columns.h in Headers */ = {isa = PBXBuildFile; fileRef = 542F025D22CA41F8000FEF00 /* Columns.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		542F026222CA41F8000FEF00 /* Columns.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 542F025B22CA41F8000FEF00 /* Columns.framework */; };
 		542F026322CA41F8000FEF00 /* Columns.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 542F025B22CA41F8000FEF00 /* Columns.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
-		542F026A22CA4320000FEF00 /* ColumnsController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 542F026922CA4320000FEF00 /* ColumnsController.swift */; };
-		542F026C22CA83AD000FEF00 /* ColumnsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 542F026B22CA83AD000FEF00 /* ColumnsViewController.swift */; };
+		542F026A22CA4320000FEF00 /* ColumnViewNavigationController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 542F026922CA4320000FEF00 /* ColumnViewNavigationController.swift */; };
+		542F026C22CA83AD000FEF00 /* ColumnViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 542F026B22CA83AD000FEF00 /* ColumnViewController.swift */; };
 		542F027022CAC0C9000FEF00 /* SampleControllers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 542F026F22CAC0C9000FEF00 /* SampleControllers.swift */; };
 		542F027422CAC2C1000FEF00 /* Lorem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 542F027322CAC2C1000FEF00 /* Lorem.swift */; };
 		542F027622CAC308000FEF00 /* Model.swift in Sources */ = {isa = PBXBuildFile; fileRef = 542F027522CAC308000FEF00 /* Model.swift */; };
@@ -57,8 +57,8 @@
 		542F025D22CA41F8000FEF00 /* Columns.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Columns.h; sourceTree = "<group>"; };
 		542F025E22CA41F8000FEF00 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		542F026822CA4200000FEF00 /* ColumnsDemo.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = ColumnsDemo.entitlements; sourceTree = "<group>"; };
-		542F026922CA4320000FEF00 /* ColumnsController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ColumnsController.swift; sourceTree = "<group>"; };
-		542F026B22CA83AD000FEF00 /* ColumnsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ColumnsViewController.swift; sourceTree = "<group>"; };
+		542F026922CA4320000FEF00 /* ColumnViewNavigationController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ColumnViewNavigationController.swift; sourceTree = "<group>"; };
+		542F026B22CA83AD000FEF00 /* ColumnViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ColumnViewController.swift; sourceTree = "<group>"; };
 		542F026F22CAC0C9000FEF00 /* SampleControllers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SampleControllers.swift; sourceTree = "<group>"; };
 		542F027322CAC2C1000FEF00 /* Lorem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Lorem.swift; sourceTree = "<group>"; };
 		542F027522CAC308000FEF00 /* Model.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Model.swift; sourceTree = "<group>"; };
@@ -123,8 +123,8 @@
 			isa = PBXGroup;
 			children = (
 				542F025D22CA41F8000FEF00 /* Columns.h */,
-				542F026922CA4320000FEF00 /* ColumnsController.swift */,
-				542F026B22CA83AD000FEF00 /* ColumnsViewController.swift */,
+				542F026922CA4320000FEF00 /* ColumnViewNavigationController.swift */,
+				542F026B22CA83AD000FEF00 /* ColumnViewController.swift */,
 				542F025E22CA41F8000FEF00 /* Info.plist */,
 			);
 			path = Columns;
@@ -256,8 +256,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				542F026C22CA83AD000FEF00 /* ColumnsViewController.swift in Sources */,
-				542F026A22CA4320000FEF00 /* ColumnsController.swift in Sources */,
+				542F026C22CA83AD000FEF00 /* ColumnViewController.swift in Sources */,
+				542F026A22CA4320000FEF00 /* ColumnViewNavigationController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
