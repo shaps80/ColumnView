@@ -1,6 +1,6 @@
 # Column View
 
-![Sample video of my column view navigation controller](sample.gif)
+![Sample video of my column view navigation controller](sample.GIF)
 
 This framework contains a Files-inspired implementation of a 'Column View' layout. Also similar to what's found in Finder on macOS.
 
