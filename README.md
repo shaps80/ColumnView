@@ -1,19 +1,21 @@
 # Column View
 
-This framework contains a Finder-like implementation of a 'Column View' layout. heavily inspired by the Files app in iOS 13.
+![Sample video of my column view navigation controller](name-of-sample.gif)
+
+This framework contains a Files-inspired implementation of a 'Column View' layout. Also similar to what's found in Finder on macOS.
 
 
 This repo contains 2 main class types:
 
-- `ColumnsController`
+- `ColumnViewNavigationController`
 
-> For an out-of-the-box solution, simply update your navigation controller class to be this type.
+> For an out-of-the-box solution, simply update your navigation controller class to be this type. This automatically manages your navigation controler to ensure your app behaves as expected based on the current size class.
 
-- `ColumnsViewController` 
+- `ColumnViewController` 
 
-> For a custom solution that's not dependany on a navigation controller, you can use this class which provides th horizontally stacked controller implementation. This is useful for example when you want to embed a navigation controller into each column.
+> For a custom solution with no dependencies on navigation controller, you can use the column view directly, provides a horizontally stacked controller implementation. This is useful for example when you want to embed a navigation controller into each column.
 
-Download the repo and run the example project to see it in action.
+Download the repo and run the sample project to see it in action.
 
 ## Features
 
