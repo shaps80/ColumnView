@@ -1,5 +1,5 @@
 import UIKit
-import Columns
+import ColumnView
 
 @UIApplicationMain
 final class AppDelegate: UIResponder, UIApplicationDelegate {

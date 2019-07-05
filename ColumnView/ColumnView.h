@@ -6,7 +6,7 @@
 //  Copyright © 2019 152 Percent Ltd. All rights reserved.
 //
 
-#import <UIKit/UIKit.h>
+#import <Foundation/Foundation.h>
 
 //! Project version number for Columns.
 FOUNDATION_EXPORT double ColumnsVersionNumber;
