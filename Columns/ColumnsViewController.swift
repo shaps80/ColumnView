@@ -14,7 +14,7 @@ open class ColumnsViewController: UIViewController {
     
     /// The thickness to use for the separator in-between each controller
     open var separatorThickness: CGFloat = {
-        return 1 / UIScreen.main.scale
+        return 1 / UIScreen.main.scale 
         }() {
         didSet {
             invalidateLayout()
