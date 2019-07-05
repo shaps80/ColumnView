@@ -305,7 +305,7 @@ open class ColumnViewController: UIViewController {
         guard isViewLoaded else { return 0 }
         guard viewControllers.indices.contains(index) else { return 0 }
         let controller = viewControllers[index]
-        let preferred = controller.preferredColumnWidth(for: controller.traitCollection)
+        let preferred = min(controller.preferredColumnWidth(for: controller.traitCollection), view.bounds.width)
         return preferred > 0 ? preferred : defaultColumnWidth
     }
     
