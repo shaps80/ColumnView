@@ -1,22 +1,82 @@
 import UIKit
 import Columns
 
-final class SeparatorView: UIView {
+final class SeparatorView: ColumnSeparator {
+    
+    final class Pill: UIView {
+        
+        var closure: (UIGestureRecognizer.State, CGFloat) -> Void = { _, _ in }
+        
+        init() {
+            super.init(frame: CGRect(x: 0, y: 0, width: 4, height: 42))
+            
+            if #available(iOS 13.0, *) {
+                backgroundColor = UIColor.systemGray
+            } else {
+                backgroundColor = UIColor.gray
+            }
+            
+            layer.cornerRadius = 2
+            autoresizingMask = [.flexibleTopMargin, .flexibleBottomMargin, .flexibleLeftMargin, .flexibleRightMargin]
+            
+            if #available(iOS 13.0, *) {
+                layer.cornerCurve = .continuous
+            }
+            
+            let gesture = UIPanGestureRecognizer(target: self, action: #selector(handle(gesture:)))
+            addGestureRecognizer(gesture)
+        }
+        
+        required init?(coder: NSCoder) {
+            fatalError("init(coder:) has not been implemented")
+        }
+        
+        override func point(inside point: CGPoint, with event: UIEvent?) -> Bool {
+            return bounds.insetBy(dx: -50, dy: -50).contains(point)
+        }
+        
+        @objc private func handle(gesture: UIPanGestureRecognizer) {
+            let delta = gesture.translation(in: gesture.view).x
+            closure(gesture.state, delta)
+            gesture.setTranslation(.zero, in: gesture.view)
+        }
+        
+        override var intrinsicContentSize: CGSize {
+            return CGSize(width: 4, height: UIView.noIntrinsicMetric)
+        }
+        
+    }
+    
+    private let pill = Pill()
+    
+    var closure: (UIGestureRecognizer.State, CGFloat) -> Void {
+        get { pill.closure }
+        set { pill.closure = newValue }
+    }
+    
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
+    
     override init(frame: CGRect) {
         super.init(frame: frame)
-        backgroundColor = .red
+        
+        if #available(iOS 13.0, *) {
+            backgroundColor = .tertiarySystemGroupedBackground
+        } else {
+            backgroundColor = .black
+        }
+        
+        pill.center = center
+        addSubview(pill)
+    }
+    
+    override var intrinsicContentSize: CGSize {
+        return CGSize(width: 10, height: UIView.noIntrinsicMetric)
     }
 }
 
 final class NavigationController: ColumnNavigationController {
-    
-    override func viewDidLoad() {
-        super.viewDidLoad()
-        
-    }
     
     override func containerType(for traitCollection: UITraitCollection) -> ColumnNavigationController.ContainerType {
         return super.containerType(for: traitCollection)
@@ -26,19 +86,38 @@ final class NavigationController: ColumnNavigationController {
 
 final class GroupsViewController: UITableViewController {
     
-    deinit {
-        print("\(#function) \(type(of: self))")
+    private var columnWidth: CGFloat = 250
+    private var minimumColumnWidth: CGFloat = 200
+    private var maximumColumnWidth: CGFloat {
+        return columnNavigationController?.view.bounds.width ?? minimumColumnWidth
+    }
+    
+    override func preferredColumnWidth(for traitCollection: UITraitCollection) -> CGFloat {
+        return columnWidth
+    }
+    
+    override func columnSeparatorView() -> ColumnSeparator? {
+        let view = SeparatorView()
+        view.closure = { [unowned self] state, delta in
+            switch state {
+            case .began:
+                self.beginColumnLayoutUpdate()
+            case .changed:
+                let width = self.columnWidth + delta
+                self.columnWidth = max(self.minimumColumnWidth, min(self.maximumColumnWidth, width))
+                self.setNeedsColumnLayoutUpdate()
+            default:
+                self.endColumnLayoutUpdate()
+            }
+        }
+        return view
     }
     
     let model = Model()
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        print("\(#function) \(type(of: self))")
-        
         title = "Groups"
-//        columnNavigationController?.columnViewController.defaultColumnWidth = 400
-//        columnNavigationController?.columnViewController.separatorClass = SeparatorView.self
     }
     
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
@@ -63,33 +142,11 @@ final class GroupsViewController: UITableViewController {
 
 final class ContactsViewController: UITableViewController {
     
-    deinit {
-        print("\(#function) \(type(of: self))")
-    }
-    
-    private var _columnWidth: CGFloat = 250
-    
-    override func preferredColumnWidth(for traitCollection: UITraitCollection) -> CGFloat {
-        return _columnWidth
-    }
-    
     var contacts: [Contact] = []
     
     override func viewDidLoad() {
         super.viewDidLoad()
         title = "Contacts"
-        print("\(#function) \(type(of: self))")
-    }
-    
-    override func viewDidAppear(_ animated: Bool) {
-        super.viewDidAppear(animated)
-        
-        DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
-            UIView.animate(withDuration: TimeInterval(UINavigationController.hideShowBarDuration), delay: 0, options: [.allowUserInteraction, .curveEaseOut], animations: {
-                self._columnWidth = 400
-                self.setNeedsColumnLayoutUpdate()
-            }, completion: nil)
-        }
     }
     
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
@@ -114,10 +171,6 @@ final class ContactsViewController: UITableViewController {
 
 final class ContactInfoViewController: UITableViewController {
     
-    deinit {
-        print("\(#function) \(type(of: self))")
-    }
-    
     override func preferredColumnWidth(for traitCollection: UITraitCollection) -> CGFloat {
         return 600
     }
@@ -127,7 +180,6 @@ final class ContactInfoViewController: UITableViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         title = contact.name
-        print("\(#function) \(type(of: self))")
     }
     
     override func numberOfSections(in tableView: UITableView) -> Int {

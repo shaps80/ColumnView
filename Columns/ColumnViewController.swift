@@ -18,6 +18,10 @@ open class ColumnViewController: UIViewController {
     
     open var scrollBehavior: ScrollBehavior = .automatic
     
+    open var overscrollAmount: CGFloat = 0 {
+        didSet { invalidateContentSize() }
+    }
+    
     /// Returns the underlying scrollView
     open var underlyingScrollView: UIScrollView {
         return columnView
@@ -33,21 +37,13 @@ open class ColumnViewController: UIViewController {
     /// If true, toolbar elements will automatically update as controllers are pushed/popped. Defaults to true
     open var automaticallyAdjustsToolbarItems: Bool = true
     
-    /// Specify this value to provide your own separator instance.
-    ///
-    /// If you override `intrinsicContentSize` or provide autolayout constraints, the width of the separator will be
-    /// determined from the view itself. Otherwise the value of `separatorThickness` will be used.
-    ///
-    /// Note: The `init(frame:)` initializer will be used to instantiate your view. XIB loading is not supported.
-    open var separatorClass: ColumnSeparator.Type?
-    
     /// The cached separator views
     private var separatorViews: [UIViewController: ColumnSeparator] = [:]
     
     /// The thickness to use for the separator in-between each controller.
     /// If `separatorClass != nil` and the view provides either an `intrinsicContentSize` or autolayout constraints,
     /// this value will be ignored
-    open var separatorThickness: CGFloat = 1 / UIScreen.main.scale {
+    open var defaultSeparatorThickness: CGFloat = 1 / UIScreen.main.scale {
         didSet { invalidateLayout() }
     }
     
@@ -55,14 +51,15 @@ open class ColumnViewController: UIViewController {
     /// If `separatorClass != nil` this value will be ignored
     open var separatorColor: UIColor = .defaultColumnSeparator {
         didSet {
-            guard separatorClass == nil else { return }
-            separatorViews.values.forEach { $0.backgroundColor = separatorColor }
+            separatorViews.values.lazy
+                .filter { $0 is _ColumnSeparator }
+                .forEach { $0.backgroundColor = separatorColor }
         }
     }
     
     // Returns a new instance of the default separator view
     private func makeDefaultSeparatorView() -> ColumnSeparator {
-        let view = UIView(frame: .zero)
+        let view = _ColumnSeparator(frame: .zero)
         view.backgroundColor = separatorColor
         view.autoresizingMask = .flexibleHeight
         return view
@@ -70,9 +67,8 @@ open class ColumnViewController: UIViewController {
     
     /// If `separatorClass != nil` a new instance of that class will be return, otherwise this method
     /// calls `makeDefaultSeparatorView()`
-    private func makeSeparatorView() -> UIView {
-        if let view = separatorClass?.init(frame: .zero) { return view }
-        return makeDefaultSeparatorView()
+    private func makeSeparatorView(for controller: UIViewController) -> ColumnSeparator {
+        return controller.columnSeparatorView() ?? makeDefaultSeparatorView()
     }
     
     /// The view controller at the top of the navigation stack
@@ -242,23 +238,12 @@ open class ColumnViewController: UIViewController {
         
         for child in children {
             _viewControllers.append(child)
-            guard child.parent != self else { continue }
             
             addChild(child)
             child.view.frame = frameForController(at: _viewControllers.count - 1)
             child.view.autoresizingMask = .flexibleHeight
             columnView.addSubview(child.view)
             child.didMove(toParent: self)
-            
-            let x = child.view.frame.maxX
-            let y = child.view.frame.minY
-            let w = separatorThickness
-            let h = child.view.frame.height
-            let separator = makeSeparatorView()
-            separator.frame = CGRect(x: x, y: y, width: w, height: h)
-            columnView.addSubview(separator)
-            
-            separatorViews[child] = separator
         }
         
         invalidateBarItems()
@@ -281,7 +266,11 @@ open class ColumnViewController: UIViewController {
         
         let range = index..<_viewControllers.count
         let controllers = _viewControllers[range]
-        controllers.forEach { separatorViews.removeValue(forKey: $0) }
+        
+        controllers.forEach {
+            separatorViews[$0]?.removeFromSuperview()
+            separatorViews[$0] = nil
+        }
         
         controllers.forEach {
             $0.willMove(toParent: nil)
@@ -298,24 +287,51 @@ open class ColumnViewController: UIViewController {
     private func minXForController(at index: Int) -> CGFloat {
         guard isViewLoaded else { return 0 }
         return (0..<index).reduce(0, { $0 + widthForController(at: $1) })
-            + CGFloat(index) * separatorThickness
+            + CGFloat(index) * defaultSeparatorThickness
     }
     
     private func widthForController(at index: Int) -> CGFloat {
         guard isViewLoaded else { return 0 }
         guard viewControllers.indices.contains(index) else { return 0 }
         let controller = viewControllers[index]
-        let preferred = min(controller.preferredColumnWidth(for: controller.traitCollection), view.bounds.width)
+        let preferred = controller.preferredColumnWidth(for: controller.traitCollection)
         return preferred > 0 ? preferred : defaultColumnWidth
     }
     
     /// Returns the frame for the controller at the specified index
     private func frameForController(at index: Int) -> CGRect {
         guard isViewLoaded else { return .zero }
-        var frame = CGRect(origin: .zero, size: view.bounds.size)
+        var frame: CGRect = .zero
         frame.origin.x = minXForController(at: index)
+        frame.origin.y = 0
         frame.size.width = widthForController(at: index)
+        frame.size.height = view.bounds.height
         return frame
+    }
+    
+    private func separator(for index: Int) -> ColumnSeparator {
+        let controller = viewControllers[index]
+        let separator = separatorViews[controller] ?? makeSeparatorView(for: controller)
+        separatorViews[controller] = separator
+        return separator
+    }
+    
+    private func thicknessForSeparator(at index: Int) -> CGFloat {
+        let separator = self.separator(for: index)
+        
+        let intrinsicWidth = separator.intrinsicContentSize.width
+        if intrinsicWidth != UIView.noIntrinsicMetric { return intrinsicWidth }
+        
+        let layoutWidth = separator.systemLayoutSizeFitting(CGSize(width: 0, height: 0), withHorizontalFittingPriority: .fittingSizeLevel, verticalFittingPriority: .required).width
+        if layoutWidth > 0 { return layoutWidth }
+        
+        return defaultSeparatorThickness
+    }
+    
+    private func frameForSeparator(at index: Int) -> CGRect {
+        let controllerFrame = frameForController(at: index)
+        let thickness = thicknessForSeparator(at: index)
+        return CGRect(x: controllerFrame.maxX, y: controllerFrame.minY, width: thickness, height: controllerFrame.height)
     }
     
     /// Updates the contentSize and scrolls the top most controller into view
@@ -334,7 +350,7 @@ open class ColumnViewController: UIViewController {
                 guard let index = self.viewControllers.indices.last else { return }
                 guard index > 0 else { return }
                 let topChildFrame = self.frameForController(at: index)
-                guard honorScrollBehavior || !topChildFrame.intersects(self.columnView.bounds) else { return }
+                guard (honorScrollBehavior || !topChildFrame.intersects(self.columnView.bounds)) && !self.isUpdating else { return }
                 self._viewControllers.last.map { self.scroll(to: $0, animated: false) }
             case .none:
                 break
@@ -342,18 +358,34 @@ open class ColumnViewController: UIViewController {
         }, completion: nil)
     }
     
+    private var isUpdating: Bool = false
+    private var _overscrollAmount: CGFloat = 0
+    internal func beginUpdating() {
+        _overscrollAmount = overscrollAmount
+        overscrollAmount = view.bounds.width
+        isUpdating = true
+    }
+    internal func endUpdating() {
+        isUpdating = false
+        overscrollAmount = _overscrollAmount
+        setNeedsColumnLayoutUpdate()
+    }
+    
     /// Scrolls the specified controller into view
     public func scroll(to controller: UIViewController, animated: Bool) {
-        columnView.scrollRectToVisible(controller.view.frame, animated: animated)
+        columnView.scrollRectToVisible(controller.view.frame, animated: !isUpdating && animated)
     }
     
     /// Updates the content size
     private func invalidateContentSize() {
         guard isViewLoaded else { return }
+        guard let index = viewControllers.indices.last else { return }
+        
         var contentSize: CGSize = .zero
         contentSize.height = 1 // need to >0 to ensure scrolling works
-        contentSize.width = frameForController(at: viewControllers.indices.last ?? 0).maxX
-            + (separatorThickness * CGFloat(_viewControllers.count))
+        contentSize.width = frameForSeparator(at: index).maxX
+        contentSize.width += max(overscrollAmount, 0)
+        
         columnView.contentSize = contentSize
     }
     
@@ -364,13 +396,9 @@ open class ColumnViewController: UIViewController {
         // if views were added before our layout, we need to update their frames
         _viewControllers.enumerated().forEach {
             $0.element.view.frame = frameForController(at: $0.offset)
-            
-            let separator = separatorViews[$0.element]
-            let x = $0.element.view.frame.maxX
-            let y = $0.element.view.frame.minY
-            let w = separatorThickness
-            let h = $0.element.view.frame.height
-            separator?.frame = CGRect(x: x, y: y, width: w, height: h)
+            let separator = self.separator(for: $0.offset)
+            separator.frame = frameForSeparator(at: $0.offset)
+            columnView.addSubview(separator)
         }
         
         invalidateContentSize()

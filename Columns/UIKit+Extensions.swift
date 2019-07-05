@@ -1,16 +1,35 @@
 import UIKit
 
-public protocol ColumnSeparator: UIView {
-    init(frame: CGRect)
+open class ColumnSeparator: UIView {
+    public override init(frame: CGRect) {
+        super.init(frame: frame)
+    }
+    
+    public required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
 }
-extension UIView: ColumnSeparator { }
+
+internal final class _ColumnSeparator: ColumnSeparator { }
 
 extension UIViewController {
+    
+    @objc open func columnSeparatorView() -> ColumnSeparator? {
+        return nil
+    }
     
     /// Override this function to return a preferred column width for the given traitCollection.
     /// - Parameter traitCollection: The current traitCollection of the controller
     @objc open func preferredColumnWidth(for traitCollection: UITraitCollection) -> CGFloat {
         return columnNavigationController?.columnViewController.defaultColumnWidth ?? 0
+    }
+    
+    public func beginColumnLayoutUpdate() {
+        columnNavigationController?.columnViewController.beginUpdating()
+    }
+    
+    public func endColumnLayoutUpdate() {
+        columnNavigationController?.columnViewController.endUpdating()
     }
     
     /// Call this method to cause an invalidation of the column layout. This is not animated by default.
@@ -26,8 +45,8 @@ extension UIViewController {
         let newWidth = preferredColumnWidth(for: traitCollection)
         let delta = newWidth - oldWidth
         let newBoundsMaxX = (controller?.underlyingScrollView.bounds.maxX ?? 0) + delta
-        let viewMaxX = controller?.viewControllers.last?.view.frame.maxX
-        let shouldMaintainScrollPosition = viewMaxX == newBoundsMaxX || self == controller?.topViewController
+        let viewMaxX = controller?.viewControllers.last?.view.frame.maxX ?? 0
+        let shouldMaintainScrollPosition = viewMaxX <= newBoundsMaxX || self == controller?.topViewController
         
         // if the view's right edge is sitting alongside of the bounds, we'll keep the position
         // if the top controller == self we'll keep it in view
