@@ -5,33 +5,27 @@ import UIKit
 /// behaves similarly to UINavigationController but with a presentation closer to column view in Finder or Files (iOS 13)
 open class ColumnViewController: UIViewController {
     
+    /// Specifies the various supported scroll behaves
+    public enum ScrollBehavior {
+        /// The controller will attempt to keep the topViewController visible except in the following cases:
+        /// 1. When the topViewController is being replaced but remains even partially visible
+        case automatic
+        /// The controller will attempt to keep the topViewController visible at all times.
+        case always
+        /// The controller will do nothing to make the view visible.
+        case none
+    }
+    
+    open var scrollBehavior: ScrollBehavior = .automatic
+    
+    /// Returns the underlying scrollView
+    open var underlyingScrollView: UIScrollView {
+        return columnView
+    }
+    
     /// The width to use for each column that presents a controller
-    open var columnWidth: CGFloat = 320 {
-        didSet {
-            invalidateLayout()
-        }
-    }
-    
-    /// The thickness to use for the separator in-between each controller
-    open var separatorThickness: CGFloat = {
-        return 1 / UIScreen.main.scale 
-        }() {
-        didSet {
-            invalidateLayout()
-        }
-    }
-    
-    /// The color to use for the seperator in-between each controller
-    open var separatorColor: UIColor = {
-        if #available(iOSApplicationExtension 13.0, *) {
-            return UIColor.opaqueSeparator
-        } else {
-            return UIColor(white: 214/255, alpha: 1)
-        }
-        }() {
-        didSet {
-            separatorViews.forEach { $0.backgroundColor = separatorColor }
-        }
+    open var defaultColumnWidth: CGFloat = 320 {
+        didSet { invalidateLayout() }
     }
     
     /// If true, navigation elements will automatically update as controllers are pushed/popped. Defaults to true
@@ -39,15 +33,46 @@ open class ColumnViewController: UIViewController {
     /// If true, toolbar elements will automatically update as controllers are pushed/popped. Defaults to true
     open var automaticallyAdjustsToolbarItems: Bool = true
     
-    /// The cached separator views
-    private var separatorViews: [UIView] = []
+    /// Specify this value to provide your own separator instance.
+    ///
+    /// If you override `intrinsicContentSize` or provide autolayout constraints, the width of the separator will be
+    /// determined from the view itself. Otherwise the value of `separatorThickness` will be used.
+    ///
+    /// Note: The `init(frame:)` initializer will be used to instantiate your view. XIB loading is not supported.
+    open var separatorClass: ColumnSeparator.Type?
     
-    /// Makes a new separator view
-    private func makeSeparatorView() -> UIView {
+    /// The cached separator views
+    private var separatorViews: [UIViewController: ColumnSeparator] = [:]
+    
+    /// The thickness to use for the separator in-between each controller.
+    /// If `separatorClass != nil` and the view provides either an `intrinsicContentSize` or autolayout constraints,
+    /// this value will be ignored
+    open var separatorThickness: CGFloat = 1 / UIScreen.main.scale {
+        didSet { invalidateLayout() }
+    }
+    
+    /// The color to use for the seperator in-between each controller.
+    /// If `separatorClass != nil` this value will be ignored
+    open var separatorColor: UIColor = .defaultColumnSeparator {
+        didSet {
+            guard separatorClass == nil else { return }
+            separatorViews.values.forEach { $0.backgroundColor = separatorColor }
+        }
+    }
+    
+    // Returns a new instance of the default separator view
+    private func makeDefaultSeparatorView() -> ColumnSeparator {
         let view = UIView(frame: .zero)
         view.backgroundColor = separatorColor
         view.autoresizingMask = .flexibleHeight
         return view
+    }
+    
+    /// If `separatorClass != nil` a new instance of that class will be return, otherwise this method
+    /// calls `makeDefaultSeparatorView()`
+    private func makeSeparatorView() -> UIView {
+        if let view = separatorClass?.init(frame: .zero) { return view }
+        return makeDefaultSeparatorView()
     }
     
     /// The view controller at the top of the navigation stack
@@ -59,7 +84,7 @@ open class ColumnViewController: UIViewController {
     open var visibleViewControllers: [UIViewController] {
         return _viewControllers.lazy
             .enumerated()
-            .filter { columnsView.bounds.intersects(frameForController(at: $0.offset)) }
+            .filter { columnView.bounds.intersects(frameForController(at: $0.offset)) }
             .map { $0.element }
     }
     
@@ -74,7 +99,7 @@ open class ColumnViewController: UIViewController {
         set { setViewControllers(newValue, animated: false) }
     }
     
-    private var columnsView: ColumnsLayoutView {
+    private var columnView: ColumnsLayoutView {
         return view as! ColumnsLayoutView
     }
     
@@ -113,7 +138,7 @@ open class ColumnViewController: UIViewController {
         
         invalidateLayout()
         guard _initialLayout else { return }
-        invalidateController(animated: false)
+        invalidateController(honorScrollBehavior: true, animated: false)
     }
     
     /// Pushes a view controller onto the receiver’s stack and updates the display.
@@ -123,9 +148,25 @@ open class ColumnViewController: UIViewController {
     
     /// - Parameter viewController: The view controller to push onto the stack.
     /// - Parameter animated: Specify true to animate the transition or false if you do not want the transition to be animated. You might specify false if you are setting up the controller at launch time.
+    @discardableResult
+    open func pushViewController(_ viewController: UIViewController, after existingViewController: UIViewController, animated: Bool) -> [UIViewController]? {
+        let previousCount = viewControllers.count
+        
+        if topViewController === existingViewController {
+            pushViewController(viewController, animated: animated)
+            return nil
+        } else {
+            guard let index = _viewControllers.firstIndex(where: { existingViewController === $0 }) else { return nil }
+            let controllers = removeChildren(including: _viewControllers.index(after: index))
+            addChildren([viewController])
+            invalidateController(honorScrollBehavior: previousCount != viewControllers.count, animated: animated)
+            return controllers
+        }
+    }
+    
     open func pushViewController(_ viewController: UIViewController, animated: Bool) {
         addChildren([viewController])
-        invalidateController(animated: animated)
+        invalidateController(honorScrollBehavior: true, animated: animated)
     }
     
     /// Pops the top view controller from the navigation stack and updates the display.
@@ -138,7 +179,7 @@ open class ColumnViewController: UIViewController {
     open func popViewController(animated: Bool) -> UIViewController? {
         guard let index = _viewControllers.indices.last else { return nil }
         let controllers = removeChildren(including: index)
-        invalidateController(animated: animated)
+        invalidateController(honorScrollBehavior: true, animated: animated)
         return controllers.first
     }
     
@@ -152,7 +193,7 @@ open class ColumnViewController: UIViewController {
     open func popToViewController(_ viewController: UIViewController, animated: Bool) -> [UIViewController]? {
         guard let index = _viewControllers.firstIndex(where: { viewController === $0 }) else { return nil }
         let controllers = removeChildren(including: _viewControllers.index(after: index))
-        invalidateController(animated: animated)
+        invalidateController(honorScrollBehavior: true, animated: animated)
         return controllers
     }
     
@@ -165,7 +206,7 @@ open class ColumnViewController: UIViewController {
     open func popToRootViewController(animated: Bool) -> [UIViewController]? {
         guard _viewControllers.count > 1 else { return nil }
         let controllers = removeChildren(including: 1)
-        invalidateController(animated: animated)
+        invalidateController(honorScrollBehavior: true, animated: animated)
         return controllers
     }
     
@@ -176,9 +217,9 @@ open class ColumnViewController: UIViewController {
     /// - Parameter viewControllers: The view controllers to place in the stack. The front-to-back order of the controllers in this array represents the new bottom-to-top order of the controllers in the navigation stack. Thus, the last item added to the array becomes the top item of the navigation stack.
     /// - Parameter animated: If true, animate the pushing or popping of the top view controller. If false, replace the view controllers without any animations
     open func setViewControllers(_ viewControllers: [UIViewController], animated: Bool) {
-        removeChildren(including: 0) // remove any existing children so they get released correctly
+        removeChildren(including: 0)
         addChildren(viewControllers)
-        invalidateController(animated: animated)
+        invalidateController(honorScrollBehavior: true, animated: animated)
     }
     
     /// Interpreted as pushViewController:animated:
@@ -201,11 +242,12 @@ open class ColumnViewController: UIViewController {
         
         for child in children {
             _viewControllers.append(child)
+            guard child.parent != self else { continue }
             
             addChild(child)
             child.view.frame = frameForController(at: _viewControllers.count - 1)
             child.view.autoresizingMask = .flexibleHeight
-            columnsView.addSubview(child.view)
+            columnView.addSubview(child.view)
             child.didMove(toParent: self)
             
             let x = child.view.frame.maxX
@@ -214,9 +256,9 @@ open class ColumnViewController: UIViewController {
             let h = child.view.frame.height
             let separator = makeSeparatorView()
             separator.frame = CGRect(x: x, y: y, width: w, height: h)
-            columnsView.addSubview(separator)
+            columnView.addSubview(separator)
             
-            separatorViews.append(separator)
+            separatorViews[child] = separator
         }
         
         invalidateBarItems()
@@ -238,12 +280,8 @@ open class ColumnViewController: UIViewController {
         removeObservers()
         
         let range = index..<_viewControllers.count
-        let separators = separatorViews[range]
         let controllers = _viewControllers[range]
-        
-        separators.forEach {
-            $0.removeFromSuperview()
-        }
+        controllers.forEach { separatorViews.removeValue(forKey: $0) }
         
         controllers.forEach {
             $0.willMove(toParent: nil)
@@ -252,67 +290,90 @@ open class ColumnViewController: UIViewController {
         }
         
         _viewControllers.removeSubrange(range)
-        separatorViews.removeSubrange(range)
-        
         invalidateBarItems()
         
         return Array(controllers)
+    }
+    
+    private func minXForController(at index: Int) -> CGFloat {
+        guard isViewLoaded else { return 0 }
+        return (0..<index).reduce(0, { $0 + widthForController(at: $1) })
+            + CGFloat(index) * separatorThickness
+    }
+    
+    private func widthForController(at index: Int) -> CGFloat {
+        guard isViewLoaded else { return 0 }
+        guard viewControllers.indices.contains(index) else { return 0 }
+        let controller = viewControllers[index]
+        let preferred = controller.preferredColumnWidth(for: controller.traitCollection)
+        return preferred > 0 ? preferred : defaultColumnWidth
     }
     
     /// Returns the frame for the controller at the specified index
     private func frameForController(at index: Int) -> CGRect {
         guard isViewLoaded else { return .zero }
         var frame = CGRect(origin: .zero, size: view.bounds.size)
-        frame.origin.x += CGFloat(index) * columnWidth
-        frame.origin.x += CGFloat(index) * separatorThickness
-        frame.size.width = columnWidth
+        frame.origin.x = minXForController(at: index)
+        frame.size.width = widthForController(at: index)
         return frame
     }
     
     /// Updates the contentSize and scrolls the top most controller into view
-    private func invalidateController(animated: Bool) {
-        invalidateContentSize(animated: animated)
-        guard columnsView.contentSize.width > columnsView.bounds.width else { return }
-        _viewControllers.last.map { scroll(to: $0, animated: animated) }
+    internal func invalidateController(honorScrollBehavior: Bool, animated: Bool) {
+        guard isViewLoaded else { return }
+        
+        UIView.animate(withDuration: TimeInterval(UINavigationController.hideShowBarDuration), delay: 0,
+                       options: [.allowUserInteraction, .curveEaseOut], animations: {
+            self.invalidateContentSize()
+            guard self.columnView.contentSize.width > self.columnView.bounds.width else { return }
+            
+            switch self.scrollBehavior {
+            case .always:
+                self._viewControllers.last.map { self.scroll(to: $0, animated: false) }
+            case .automatic:
+                guard let index = self.viewControllers.indices.last else { return }
+                guard index > 0 else { return }
+                let topChildFrame = self.frameForController(at: index)
+                guard honorScrollBehavior || !topChildFrame.intersects(self.columnView.bounds) else { return }
+                self._viewControllers.last.map { self.scroll(to: $0, animated: false) }
+            case .none:
+                break
+            }
+        }, completion: nil)
     }
     
     /// Scrolls the specified controller into view
-    private func scroll(to controller: UIViewController, animated: Bool) {
-        columnsView.scrollRectToVisible(controller.view.frame, animated: animated)
+    public func scroll(to controller: UIViewController, animated: Bool) {
+        columnView.scrollRectToVisible(controller.view.frame, animated: animated)
     }
     
     /// Updates the content size
-    private func invalidateContentSize(animated: Bool) {
+    private func invalidateContentSize() {
+        guard isViewLoaded else { return }
         var contentSize: CGSize = .zero
         contentSize.height = 1 // need to >0 to ensure scrolling works
-        contentSize.width =
-            (columnWidth * CGFloat(_viewControllers.count))
+        contentSize.width = frameForController(at: viewControllers.indices.last ?? 0).maxX
             + (separatorThickness * CGFloat(_viewControllers.count))
-
-        if animated {
-            UIView.animate(withDuration: 0.2) {
-                self.columnsView.contentSize = contentSize
-            }
-        } else {
-            columnsView.contentSize = contentSize
-        }
+        columnView.contentSize = contentSize
     }
     
     /// Updates the layout for all controllers and their associated separators
-    private func invalidateLayout() {
+    internal func invalidateLayout() {
+        guard isViewLoaded else { return }
+        
         // if views were added before our layout, we need to update their frames
         _viewControllers.enumerated().forEach {
             $0.element.view.frame = frameForController(at: $0.offset)
             
-            let separator = separatorViews[$0.offset]
+            let separator = separatorViews[$0.element]
             let x = $0.element.view.frame.maxX
             let y = $0.element.view.frame.minY
             let w = separatorThickness
             let h = $0.element.view.frame.height
-            separator.frame = CGRect(x: x, y: y, width: w, height: h)
+            separator?.frame = CGRect(x: x, y: y, width: w, height: h)
         }
         
-        invalidateContentSize(animated: false)
+        invalidateContentSize()
     }
     
     deinit {
