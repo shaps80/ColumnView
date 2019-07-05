@@ -6,12 +6,16 @@ import UIKit
 ///
 /// Titles, navigation items and toolbar items are automatically managed to allow you to work with existing code.
 /// In 99% of cases, updating your navigation controllers to use this subclass should be enough.
-open class ColumnsController: UINavigationController {
+open class ColumnViewNavigationController: UINavigationController {
     
     /// The underlying view controller that provides the stacked horizontal layout. This can be used to configure its settings.
-    open private(set) lazy var columnsViewController: ColumnsViewController = {
-        return ColumnsViewController(nibName: nil, bundle: nil)
+    open private(set) lazy var columnsViewController: ColumnViewController = {
+        return ColumnViewController(nibName: nil, bundle: nil)
     }()
+
+    open var topChild: UIViewController? {
+        return isCollapsed ? topViewController : columnsViewController.topViewController
+    }
     
     open override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
         super.traitCollectionDidChange(previousTraitCollection)

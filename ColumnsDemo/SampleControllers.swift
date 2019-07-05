@@ -1,4 +1,5 @@
 import UIKit
+import Columns
 
 final class GroupsViewController: UITableViewController {
     
@@ -24,8 +25,13 @@ final class GroupsViewController: UITableViewController {
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         let controller = storyboard!.instantiateViewController(withIdentifier: "ContactsViewController") as! ContactsViewController
         controller.contacts = model.folders[indexPath.item].contacts
-        navigationController?.popToViewController(self, animated: false)
-        navigationController?.pushViewController(controller, animated: false)
+
+        if (navigationController as? ColumnViewNavigationController)?.topChild == self {
+            navigationController?.pushViewController(controller, animated: true)
+        } else {
+            navigationController?.popToViewController(self, animated: true)
+            navigationController?.pushViewController(controller, animated: false)
+        }
     }
     
 }
@@ -54,8 +60,14 @@ final class ContactsViewController: UITableViewController {
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         let controller = storyboard!.instantiateViewController(withIdentifier: "ContactInfoViewController") as! ContactInfoViewController
         controller.contact = contacts[indexPath.item]
-        navigationController?.popToViewController(self, animated: false)
-        navigationController?.pushViewController(controller, animated: false)
+
+        // we should refactor this into ColumnsNavigationController so its handled by default
+        if (navigationController as? ColumnViewNavigationController)?.topChild == self {
+            navigationController?.pushViewController(controller, animated: true)
+        } else {
+            navigationController?.popToViewController(self, animated: true)
+            navigationController?.pushViewController(controller, animated: false)
+        }
     }
     
 }

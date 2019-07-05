@@ -3,7 +3,7 @@ import UIKit
 /// For most cases you should use the `ColumnsController` class since it automatically manages a UINavigationController as well.
 /// However if preferred, you can also use this class directly to present a horizontally stacked set of controllers that
 /// behaves similarly to UINavigationController but with a presentation closer to column view in Finder or Files (iOS 13)
-open class ColumnsViewController: UIViewController {
+open class ColumnViewController: UIViewController {
     
     /// The width to use for each column that presents a controller
     open var columnWidth: CGFloat = 320 {
@@ -288,9 +288,13 @@ open class ColumnsViewController: UIViewController {
         contentSize.width =
             (columnWidth * CGFloat(_viewControllers.count))
             + (separatorThickness * CGFloat(_viewControllers.count))
-        
-        UIView.animate(withDuration: 0.2) {
-            self.columnsView.contentSize = contentSize
+
+        if animated {
+            UIView.animate(withDuration: 0.2) {
+                self.columnsView.contentSize = contentSize
+            }
+        } else {
+            columnsView.contentSize = contentSize
         }
     }
     
