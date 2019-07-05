@@ -20,7 +20,19 @@ extension UIViewController {
     ///     setNeedsColumnLayoutUpdate()
     public func setNeedsColumnLayoutUpdate() {
         columnNavigationController?.columnViewController.invalidateLayout()
-        columnNavigationController?.columnViewController.invalidateController(honorScrollBehavior: true, animated: false)
+        
+        let controller = columnNavigationController?.columnViewController
+        let oldWidth = view.layer.presentation()?.bounds.width ?? 0
+        let newWidth = preferredColumnWidth(for: traitCollection)
+        let delta = newWidth - oldWidth
+        let newBoundsMaxX = (controller?.underlyingScrollView.bounds.maxX ?? 0) + delta
+        let viewMaxX = controller?.viewControllers.last?.view.frame.maxX
+        let shouldMaintainScrollPosition = viewMaxX == newBoundsMaxX || self == controller?.topViewController
+        
+        // if the view's right edge is sitting alongside of the bounds, we'll keep the position
+        // if the top controller == self we'll keep it in view
+        
+        columnNavigationController?.columnViewController.invalidateController(honorScrollBehavior: shouldMaintainScrollPosition, animated: false)
     }
     
     public var columnNavigationController: ColumnNavigationController? {
