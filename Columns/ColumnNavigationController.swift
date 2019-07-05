@@ -34,27 +34,41 @@ open class ColumnNavigationController: UINavigationController {
     
     public required init?(coder aDecoder: NSCoder) {
         super.init(coder: aDecoder)
-        guard !isCollapsed else { return }
-        setViewControllers(viewControllers, animated: false)
+        switch containerType(for: traitCollection) {
+        case .columnView:
+            setViewControllers(viewControllers, animated: false)
+        case .navigationView:
+            break // navigation controller does this for us
+        }
+        
     }
 
     /// A convenience property that returns the current number of children, regardless of their current presentation
     open var childCount: Int {
-        return isCollapsed
-            ? viewControllers.count
-            : columnViewController.viewControllers.count
+        switch containerType(for: traitCollection) {
+        case .columnView:
+            return columnViewController.viewControllers.count
+        case .navigationView:
+            return viewControllers.count
+        }
     }
     
     open var topChild: UIViewController? {
-        return isCollapsed
-            ? topViewController
-            : columnViewController.topViewController
+        switch containerType(for: traitCollection) {
+        case .columnView:
+            return columnViewController.topViewController
+        case .navigationView:
+            return topViewController
+        }
     }
     
     open var visibleChildren: [UIViewController] {
-        return isCollapsed
-            ? [visibleViewController].compactMap { $0 }
-            : columnViewController.visibleViewControllers
+        switch containerType(for: traitCollection) {
+        case .columnView:
+            return columnViewController.visibleViewControllers
+        case .navigationView:
+            return [visibleViewController].compactMap { $0 }
+        }
     }
     
     open func containerType(for traitCollection: UITraitCollection) -> ContainerType {
@@ -76,18 +90,13 @@ open class ColumnNavigationController: UINavigationController {
         update(for: self.traitCollection)
     }
     
-    open override func viewDidLoad() {
-        super.viewDidLoad()
-        
-        if !isCollapsed {
-            // if we're already collapsed, we don't need to do anything
-            update(for: traitCollection)
-        }
-    }
+    private var _initialLayout: Bool = true
     
-    /// Returns true if ` traitCollection.horizontalSizeClass == .compact`
-    public var isCollapsed: Bool {
-        return containerType(for: traitCollection) == .navigationView
+    open override func viewWillLayoutSubviews() {
+        super.viewWillLayoutSubviews()
+        guard _initialLayout else { return }
+        update(for: traitCollection)
+        _initialLayout = false
     }
     
     private func update(for traitCollection: UITraitCollection) {
@@ -123,65 +132,72 @@ open class ColumnNavigationController: UINavigationController {
     
     @discardableResult
     open func pushViewController(_ viewController: UIViewController, after existingViewController: UIViewController, animated: Bool) -> [UIViewController]? {
-        if isCollapsed {
+        switch containerType(for: traitCollection) {
+        case .columnView:
+            return columnViewController.pushViewController(viewController, after: existingViewController, animated: animated)
+        case .navigationView:
             super.pushViewController(viewController, animated: animated)
             return nil
-        } else {
-            return columnViewController.pushViewController(viewController, after: existingViewController, animated: animated)
         }
     }
     
     open override func pushViewController(_ viewController: UIViewController, animated: Bool) {
-        if isCollapsed {
-            super.pushViewController(viewController, animated: animated)
-        } else {
+        switch containerType(for: traitCollection) {
+        case .columnView:
             columnViewController.pushViewController(viewController, animated: animated)
+        case .navigationView:
+            super.pushViewController(viewController, animated: animated)
         }
     }
 
     @discardableResult
     open override func popViewController(animated: Bool) -> UIViewController? {
-        if isCollapsed {
-            return super.popViewController(animated: animated)
-        } else {
+        switch containerType(for: traitCollection) {
+        case .columnView:
             return columnViewController.popViewController(animated: animated)
+        case .navigationView:
+            return super.popViewController(animated: animated)
         }
     }
 
     @discardableResult
     open override func popToViewController(_ viewController: UIViewController, animated: Bool) -> [UIViewController]? {
-        if isCollapsed {
-            return super.popToViewController(viewController, animated: animated)
-        } else {
+        switch containerType(for: traitCollection) {
+        case .columnView:
             return columnViewController.popToViewController(viewController, animated: animated)
+        case .navigationView:
+            return super.popToViewController(viewController, animated: animated)
         }
     }
 
     @discardableResult
     open override func popToRootViewController(animated: Bool) -> [UIViewController]? {
-        if isCollapsed {
-            return super.popToRootViewController(animated: animated)
-        } else {
+        switch containerType(for: traitCollection) {
+        case .columnView:
             return columnViewController.popToRootViewController(animated: animated)
+        case .navigationView:
+            return super.popToRootViewController(animated: animated)
         }
     }
     
     open override var viewControllers: [UIViewController] {
         get { return super.viewControllers }
         set {
-            if isCollapsed {
-                super.setViewControllers(newValue, animated: false)
-            } else {
+            switch containerType(for: traitCollection) {
+            case .columnView:
                 columnViewController.setViewControllers(newValue, animated: false)
+            case .navigationView:
+                super.setViewControllers(newValue, animated: false)
             }
         }
     }
     
     open override func setViewControllers(_ viewControllers: [UIViewController], animated: Bool) {
-        if isCollapsed {
-            super.setViewControllers(viewControllers, animated: animated)
-        } else {
+        switch containerType(for: traitCollection) {
+        case .columnView:
             columnViewController.setViewControllers(viewControllers, animated: animated)
+        case .navigationView:
+            super.setViewControllers(viewControllers, animated: animated)
         }
     }
     

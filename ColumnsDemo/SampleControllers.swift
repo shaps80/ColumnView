@@ -13,8 +13,13 @@ final class SeparatorView: UIView {
 
 final class NavigationController: ColumnNavigationController {
     
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        
+    }
+    
     override func containerType(for traitCollection: UITraitCollection) -> ColumnNavigationController.ContainerType {
-        return .columnView
+        return super.containerType(for: traitCollection)
     }
     
 }
