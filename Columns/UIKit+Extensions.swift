@@ -19,7 +19,8 @@ extension UIViewController {
     ///     self.columnWidth = 200
     ///     setNeedsColumnLayoutUpdate()
     public func setNeedsColumnLayoutUpdate() {
-        columnNavigationController?.columnViewController.invalidateController(honorScrollBehavior: false, animated: false)
+        columnNavigationController?.columnViewController.invalidateLayout()
+        columnNavigationController?.columnViewController.invalidateController(honorScrollBehavior: true, animated: false)
     }
     
     public var columnNavigationController: ColumnNavigationController? {

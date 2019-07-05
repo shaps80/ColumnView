@@ -79,10 +79,12 @@ final class ContactsViewController: UITableViewController {
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
         
-//        UIView.animate(withDuration: TimeInterval(0.3), delay: TimeInterval(3), options: [.allowUserInteraction, .curveEaseOut], animations: {
-//            self._columnWidth = 400
-//            self.setNeedsColumnLayoutUpdate()
-//        }, completion: nil)
+        DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+            UIView.animate(withDuration: TimeInterval(UINavigationController.hideShowBarDuration), delay: 0, options: [.allowUserInteraction, .curveEaseOut], animations: {
+                self._columnWidth = 400
+                self.setNeedsColumnLayoutUpdate()
+            }, completion: nil)
+        }
     }
     
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
