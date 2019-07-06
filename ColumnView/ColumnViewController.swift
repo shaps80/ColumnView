@@ -249,7 +249,10 @@ open class ColumnViewController: UIViewController {
         }
         
         invalidateBarItems()
-        invalidateContentSize()
+        
+        if traitCollection.layoutDirection == .rightToLeft {
+            invalidateContentSize()
+        }
     }
     
     /// Removes all children after (and including) the specified index from the navigation stack.
@@ -283,7 +286,10 @@ open class ColumnViewController: UIViewController {
         
         _viewControllers.removeSubrange(range)
         invalidateBarItems()
-        invalidateContentSize()
+        
+        if traitCollection.layoutDirection == .rightToLeft {
+            invalidateContentSize()
+        }
         
         return Array(controllers)
     }
@@ -421,7 +427,7 @@ open class ColumnViewController: UIViewController {
     /// Updates the layout for all controllers and their associated separators
     internal func invalidateLayout() {
         guard isViewLoaded else { return }
-        
+
         // This needs to happen first because we need to know the entire size in order to layout for RTL languages.
         invalidateContentSize()
         
