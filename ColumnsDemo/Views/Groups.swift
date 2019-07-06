@@ -1,32 +1,6 @@
 import UIKit
-import ColumnView
 
-final class GroupsViewController: UITableViewController {
-    
-    private var columnWidth: CGFloat = 250
-    private var minimumColumnWidth: CGFloat = 200
-    private var maximumColumnWidth: CGFloat = 400
-    
-    override func preferredColumnWidth(for traitCollection: UITraitCollection) -> CGFloat {
-        return columnWidth
-    }
-    
-    override func columnSeparatorView() -> ColumnSeparator? {
-        let view = SeparatorView()
-        view.closure = { [unowned self] state, delta in
-            switch state {
-            case .began:
-                self.beginColumnLayoutUpdate()
-            case .changed:
-                let width = self.columnWidth + delta
-                self.columnWidth = max(self.minimumColumnWidth, min(self.maximumColumnWidth, width))
-                self.setNeedsColumnLayoutUpdate()
-            default:
-                self.endColumnLayoutUpdate()
-            }
-        }
-        return view
-    }
+final class GroupsViewController: ResizableViewController {
     
     let model = Model()
     

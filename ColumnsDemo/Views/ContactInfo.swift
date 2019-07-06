@@ -2,10 +2,6 @@ import UIKit
 
 final class ContactInfoViewController: UITableViewController {
     
-    override func preferredColumnWidth(for traitCollection: UITraitCollection) -> CGFloat {
-        return 600
-    }
-    
     var contact: Contact!
     
     override func viewDidLoad() {

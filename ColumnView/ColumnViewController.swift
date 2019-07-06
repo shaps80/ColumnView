@@ -95,8 +95,8 @@ open class ColumnViewController: UIViewController {
         set { setViewControllers(newValue, animated: false) }
     }
     
-    private var columnView: ColumnsLayoutView {
-        return view as! ColumnsLayoutView
+    private var columnView: ColumnsScrollsView {
+        return view as! ColumnsScrollsView
     }
     
     public override init(nibName nibNameOrNil: String?, bundle nibBundleOrNil: Bundle?) {
@@ -114,7 +114,7 @@ open class ColumnViewController: UIViewController {
     
     public override func loadView() {
         super.loadView()
-        view = ColumnsLayoutView(frame: .zero)
+        view = ColumnsScrollsView(frame: .zero)
     }
     
     open override func viewDidLoad() {
@@ -469,7 +469,7 @@ open class ColumnViewController: UIViewController {
 }
 
 /// An internal layout view that provides a basic horizontally stacked layout
-private final class ColumnsLayoutView: UIScrollView {
+private final class ColumnsScrollsView: UIScrollView {
     
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -479,7 +479,13 @@ private final class ColumnsLayoutView: UIScrollView {
         alwaysBounceHorizontal = true
         alwaysBounceVertical = false
         contentInsetAdjustmentBehavior = .never
-        translatesAutoresizingMaskIntoConstraints = false
+        delaysContentTouches = true
+        panGestureRecognizer.delaysTouchesBegan = true
+        panGestureRecognizer.cancelsTouchesInView = true
+    }
+    
+    override func touchesShouldCancel(in view: UIView) -> Bool {
+        return true
     }
     
     required init?(coder: NSCoder) {

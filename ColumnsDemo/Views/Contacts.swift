@@ -1,6 +1,6 @@
 import UIKit
 
-final class ContactsViewController: UITableViewController {
+final class ContactsViewController: ResizableViewController {
     
     var contacts: [Contact] = []
     
