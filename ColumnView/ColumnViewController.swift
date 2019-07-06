@@ -422,8 +422,6 @@ open class ColumnViewController: UIViewController {
     internal func invalidateLayout() {
         guard isViewLoaded else { return }
         
-        let previousWidth = columnView.contentSize.width
-        
         // This needs to happen first because we need to know the entire size in order to layout for RTL languages.
         invalidateContentSize()
         
@@ -432,12 +430,6 @@ open class ColumnViewController: UIViewController {
             let separator = self.separator(for: $0.offset)
             separator.frame = frameForSeparator(at: $0.offset)
             columnView.addSubview(separator)
-        }
-        
-        let newWidth = columnView.contentSize.width
-        
-        if newWidth > previousWidth && traitCollection.layoutDirection == .rightToLeft {
-            columnView.contentOffset.x += newWidth - previousWidth
         }
     }
     

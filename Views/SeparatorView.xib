@@ -25,8 +25,8 @@
             </subviews>
             <color key="backgroundColor" cocoaTouchSystemColor="tertiarySystemGroupedBackgroundColor"/>
             <constraints>
-                <constraint firstAttribute="trailing" secondItem="P9I-gO-SNR" secondAttribute="trailing" priority="999" constant="3" id="08O-I5-bdk"/>
-                <constraint firstItem="P9I-gO-SNR" firstAttribute="leading" secondItem="iN0-l3-epB" secondAttribute="leading" constant="3" id="5FX-g4-T0a"/>
+                <constraint firstAttribute="trailing" relation="greaterThanOrEqual" secondItem="P9I-gO-SNR" secondAttribute="trailing" constant="3" id="08O-I5-bdk"/>
+                <constraint firstItem="P9I-gO-SNR" firstAttribute="leading" relation="greaterThanOrEqual" secondItem="iN0-l3-epB" secondAttribute="leading" constant="3" id="5FX-g4-T0a"/>
                 <constraint firstItem="P9I-gO-SNR" firstAttribute="centerY" secondItem="iN0-l3-epB" secondAttribute="centerY" id="aVK-fi-cOZ"/>
                 <constraint firstItem="P9I-gO-SNR" firstAttribute="centerX" secondItem="iN0-l3-epB" secondAttribute="centerX" id="cyB-zG-cYU"/>
             </constraints>
