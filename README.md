@@ -17,9 +17,23 @@ This repo contains 2 main class types:
 
 Download the repo and run the sample project to see it in action.
 
+---
+
+Finally wherever you're calling `pushViewController` just update it to call:
+
+```swift
+// This will replace all controllers after the specified controller as expected
+pushViewController(:after:animated:)
+```
+
 ## Features
 
 For a relatively simple solution, plenty of features are included nonetheless:
+
+All new features
+- Right-to-Left support
+- Column live-resizing
+- Configurable overscroll
 
 Familiar API
 - `pushViewController`
@@ -28,7 +42,8 @@ Familiar API
 - `popToRootViewController`
 
 Customizations
-- Column width
+- Column width (per view)
+- Custom separator (per view)
 - Separator thickness
 - Separator color
 
