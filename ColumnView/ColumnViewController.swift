@@ -121,7 +121,7 @@ open class ColumnViewController: UIViewController {
     
     open override func viewDidLoad() {
         super.viewDidLoad()
-        
+
         addChildren(pendingChildren)
         pendingChildren.removeAll()
     }
@@ -249,6 +249,7 @@ open class ColumnViewController: UIViewController {
         }
         
         invalidateBarItems()
+        invalidateContentSize()
     }
     
     /// Removes all children after (and including) the specified index from the navigation stack.
@@ -282,14 +283,28 @@ open class ColumnViewController: UIViewController {
         
         _viewControllers.removeSubrange(range)
         invalidateBarItems()
+        invalidateContentSize()
         
         return Array(controllers)
     }
     
     private func minXForController(at index: Int) -> CGFloat {
         guard isViewLoaded else { return 0 }
-        return (0..<index).reduce(0, { $0 + widthForController(at: $1) })
-            + CGFloat(index) * defaultSeparatorThickness
+        
+        switch traitCollection.layoutDirection {
+        case .rightToLeft:
+            let leftOrigin = (0..<index).reduce(0, {
+                $0 + widthForController(at: $1) + thicknessForSeparator(at: $1)
+            })
+            
+            // find the right-most edge, then layout from there.
+            return max(columnView.bounds.width, columnView.contentSize.width)
+                - leftOrigin - widthForController(at: index)
+        default:
+            return (0..<index).reduce(0, {
+                $0 + widthForController(at: $1) + thicknessForSeparator(at: $1)
+            })
+        }
     }
     
     private func widthForController(at index: Int) -> CGFloat {
@@ -321,6 +336,10 @@ open class ColumnViewController: UIViewController {
     private func thicknessForSeparator(at index: Int) -> CGFloat {
         let separator = self.separator(for: index)
         
+        if separator is _ColumnSeparator {
+            return defaultSeparatorThickness
+        }
+        
         let intrinsicWidth = separator.intrinsicContentSize.width
         if intrinsicWidth != UIView.noIntrinsicMetric { return intrinsicWidth }
         
@@ -333,7 +352,16 @@ open class ColumnViewController: UIViewController {
     private func frameForSeparator(at index: Int) -> CGRect {
         let controllerFrame = frameForController(at: index)
         let thickness = thicknessForSeparator(at: index)
-        return CGRect(x: controllerFrame.maxX, y: controllerFrame.minY, width: thickness, height: controllerFrame.height)
+        let minX: CGFloat
+        
+        switch traitCollection.layoutDirection {
+        case .rightToLeft:
+            minX = controllerFrame.minX - thickness
+        default:
+            minX = controllerFrame.maxX
+        }
+        
+        return CGRect(x: minX, y: controllerFrame.minY, width: thickness, height: controllerFrame.height)
     }
     
     /// Updates the contentSize and scrolls the top most controller into view
@@ -381,21 +409,24 @@ open class ColumnViewController: UIViewController {
     /// Updates the content size
     private func invalidateContentSize() {
         guard isViewLoaded else { return }
-        guard let index = viewControllers.indices.last else { return }
         
-        var contentSize: CGSize = .zero
-        contentSize.height = 1 // need to >0 to ensure scrolling works
-        contentSize.width = frameForSeparator(at: index).maxX
-        contentSize.width += max(overscrollAmount, 0)
+        let width = viewControllers.indices.reduce(0, {
+            $0 + widthForController(at: $1) + thicknessForSeparator(at: $1)
+        })
         
-        columnView.contentSize = contentSize
+        // `height = 1` to ensure scrolling works as expected
+        columnView.contentSize = CGSize(width: width + overscrollAmount, height: 1)
     }
     
     /// Updates the layout for all controllers and their associated separators
     internal func invalidateLayout() {
         guard isViewLoaded else { return }
         
-        // if views were added before our layout, we need to update their frames
+        let previousWidth = columnView.contentSize.width
+        
+        // This needs to happen first because we need to know the entire size in order to layout for RTL languages.
+        invalidateContentSize()
+        
         _viewControllers.enumerated().forEach {
             $0.element.view.frame = frameForController(at: $0.offset)
             let separator = self.separator(for: $0.offset)
@@ -403,7 +434,11 @@ open class ColumnViewController: UIViewController {
             columnView.addSubview(separator)
         }
         
-        invalidateContentSize()
+        let newWidth = columnView.contentSize.width
+        
+        if newWidth > previousWidth && traitCollection.layoutDirection == .rightToLeft {
+            columnView.contentOffset.x += newWidth - previousWidth
+        }
     }
     
     deinit {

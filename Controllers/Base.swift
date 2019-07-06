@@ -50,7 +50,9 @@ class ResizableViewController: UITableViewController {
     
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
-        tableView.showsVerticalScrollIndicator = false
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.01) {
+            self.tableView.showsVerticalScrollIndicator = true
+        }
     }
     
     private var _columnWidth: CGFloat = 0

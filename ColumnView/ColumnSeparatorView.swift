@@ -44,7 +44,13 @@ open class ColumnSeparatorView: UIView {
         columnViewController?.beginUpdating()
         
         let translation = touch.location(in: self).x - touch.previousLocation(in: self).x
-        delegate?.columnSeparator(self, didAdjustBy: translation)
+        
+        switch traitCollection.layoutDirection {
+        case .rightToLeft:
+            delegate?.columnSeparator(self, didAdjustBy: -translation)
+        default:
+            delegate?.columnSeparator(self, didAdjustBy: translation)
+        }
     }
     
     open override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
