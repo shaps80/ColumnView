@@ -68,7 +68,9 @@ open class ColumnViewController: UIViewController {
     /// If `separatorClass != nil` a new instance of that class will be return, otherwise this method
     /// calls `makeDefaultSeparatorView()`
     private func makeSeparatorView(for controller: UIViewController) -> ColumnSeparator {
-        return controller.columnSeparatorView() ?? makeDefaultSeparatorView()
+        let separator = controller.columnSeparatorView() ?? makeDefaultSeparatorView()
+        separator.columnViewController = columnNavigationController?.columnViewController
+        return separator
     }
     
     /// The view controller at the top of the navigation stack
@@ -294,7 +296,7 @@ open class ColumnViewController: UIViewController {
         guard isViewLoaded else { return 0 }
         guard viewControllers.indices.contains(index) else { return 0 }
         let controller = viewControllers[index]
-        let preferred = controller.preferredColumnWidth(for: controller.traitCollection)
+        let preferred = controller.preferredColumnWidth
         return preferred > 0 ? preferred : defaultColumnWidth
     }
     
@@ -364,11 +366,13 @@ open class ColumnViewController: UIViewController {
         _overscrollAmount = overscrollAmount
         overscrollAmount = view.bounds.width
         isUpdating = true
+        columnView.panGestureRecognizer.isEnabled = false
     }
     internal func endUpdating() {
         isUpdating = false
         overscrollAmount = _overscrollAmount
         setNeedsColumnLayoutUpdate()
+        columnView.panGestureRecognizer.isEnabled = true
     }
     
     /// Scrolls the specified controller into view
@@ -481,11 +485,7 @@ private final class ColumnsScrollsView: UIScrollView {
         contentInsetAdjustmentBehavior = .never
         delaysContentTouches = true
         panGestureRecognizer.delaysTouchesBegan = true
-        panGestureRecognizer.cancelsTouchesInView = true
-    }
-    
-    override func touchesShouldCancel(in view: UIView) -> Bool {
-        return true
+        panGestureRecognizer.cancelsTouchesInView = false
     }
     
     required init?(coder: NSCoder) {

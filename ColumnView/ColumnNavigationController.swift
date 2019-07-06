@@ -130,6 +130,10 @@ open class ColumnNavigationController: UINavigationController {
         }
     }
     
+}
+
+extension ColumnNavigationController {
+    
     @discardableResult
     open func pushViewController(_ viewController: UIViewController, after existingViewController: UIViewController, animated: Bool) -> [UIViewController]? {
         switch containerType(for: traitCollection) {
@@ -149,7 +153,7 @@ open class ColumnNavigationController: UINavigationController {
             super.pushViewController(viewController, animated: animated)
         }
     }
-
+    
     @discardableResult
     open override func popViewController(animated: Bool) -> UIViewController? {
         switch containerType(for: traitCollection) {
@@ -159,7 +163,7 @@ open class ColumnNavigationController: UINavigationController {
             return super.popViewController(animated: animated)
         }
     }
-
+    
     @discardableResult
     open override func popToViewController(_ viewController: UIViewController, animated: Bool) -> [UIViewController]? {
         switch containerType(for: traitCollection) {
@@ -169,7 +173,7 @@ open class ColumnNavigationController: UINavigationController {
             return super.popToViewController(viewController, animated: animated)
         }
     }
-
+    
     @discardableResult
     open override func popToRootViewController(animated: Bool) -> [UIViewController]? {
         switch containerType(for: traitCollection) {
