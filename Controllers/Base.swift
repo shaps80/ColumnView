@@ -4,7 +4,10 @@ import ColumnView
 final class NavigationController: ColumnNavigationController {
     
     override func containerType(for traitCollection: UITraitCollection) -> ColumnNavigationController.ContainerType {
-        // you could choose to force columnView always for example.
+        // You could choose to force columnView for iPad, regardless of size class
+        // Example:
+        //     return traitCollection.userInterfaceIdiom == .phone ? .navigationView : .columnView
+        
         return super.containerType(for: traitCollection)
     }
     
@@ -76,7 +79,7 @@ class ResizableViewController: UITableViewController {
     }
     
     override func columnSeparatorView() -> ColumnSeparatorView? {
-        let view = SeparatorView()
+        let view = SeparatorView.fromNib
         view.delegate = self
         return view
     }

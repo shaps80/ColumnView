@@ -6,7 +6,9 @@ final class ContactInfoViewController: UITableViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        
         title = contact.name
+        navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .action, target: nil, action: nil)
     }
     
     override func numberOfSections(in tableView: UITableView) -> Int {

@@ -11,13 +11,13 @@
         <!--Groups View Controller-->
         <scene sceneID="IYl-ok-Rgf">
             <objects>
-                <tableViewController storyboardIdentifier="FilesViewController" id="Nrd-LR-eWn" customClass="GroupsViewController" customModule="ColumnsDemo" customModuleProvider="target" sceneMemberID="viewController">
+                <tableViewController storyboardIdentifier="FilesViewController" id="Nrd-LR-eWn" customClass="GroupsViewController" customModule="ColumnViewDemo" customModuleProvider="target" sceneMemberID="viewController">
                     <tableView key="view" clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" showsHorizontalScrollIndicator="NO" showsVerticalScrollIndicator="NO" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="-1" estimatedRowHeight="-1" sectionHeaderHeight="28" sectionFooterHeight="28" id="DRZ-vk-l2I">
                         <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <inset key="separatorInset" minX="0.0" minY="0.0" maxX="0.0" maxY="0.0"/>
                         <prototypes>
-                            <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" selectionStyle="default" indentationWidth="10" reuseIdentifier="NameCell" rowHeight="64" id="D9u-Zb-HGA" customClass="NameCell" customModule="ColumnsDemo" customModuleProvider="target">
+                            <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" selectionStyle="default" indentationWidth="10" reuseIdentifier="NameCell" rowHeight="64" id="D9u-Zb-HGA" customClass="NameCell" customModule="ColumnViewDemo" customModuleProvider="target">
                                 <rect key="frame" x="0.0" y="28" width="414" height="64"/>
                                 <autoresizingMask key="autoresizingMask"/>
                                 <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" preservesSuperviewLayoutMargins="YES" insetsLayoutMarginsFromSafeArea="NO" tableViewCell="D9u-Zb-HGA" id="rVN-27-VhR">
@@ -70,14 +70,14 @@
         <!--Contacts View Controller-->
         <scene sceneID="bQj-Cw-r7T">
             <objects>
-                <tableViewController storyboardIdentifier="ContactsViewController" id="XzF-qf-40O" customClass="ContactsViewController" customModule="ColumnsDemo" customModuleProvider="target" sceneMemberID="viewController">
+                <tableViewController storyboardIdentifier="ContactsViewController" id="XzF-qf-40O" customClass="ContactsViewController" customModule="ColumnViewDemo" customModuleProvider="target" sceneMemberID="viewController">
                     <tableView key="view" clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="-1" estimatedRowHeight="-1" sectionHeaderHeight="28" sectionFooterHeight="28" id="P3w-7M-7p6">
                         <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <color key="backgroundColor" xcode11CocoaTouchSystemColor="systemBackgroundColor" cocoaTouchSystemColor="whiteColor"/>
                         <inset key="separatorInset" minX="0.0" minY="0.0" maxX="0.0" maxY="0.0"/>
                         <prototypes>
-                            <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" selectionStyle="default" indentationWidth="10" reuseIdentifier="NameCell" rowHeight="64" id="3A0-uO-wvQ" customClass="NameCell" customModule="ColumnsDemo" customModuleProvider="target">
+                            <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" selectionStyle="default" indentationWidth="10" reuseIdentifier="NameCell" rowHeight="64" id="3A0-uO-wvQ" customClass="NameCell" customModule="ColumnViewDemo" customModuleProvider="target">
                                 <rect key="frame" x="0.0" y="28" width="414" height="64"/>
                                 <autoresizingMask key="autoresizingMask"/>
                                 <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" preservesSuperviewLayoutMargins="YES" insetsLayoutMarginsFromSafeArea="NO" tableViewCell="3A0-uO-wvQ" id="BVS-vI-hiO">
@@ -128,15 +128,14 @@
         <!--Contact Info View Controller-->
         <scene sceneID="1EL-ry-kYp">
             <objects>
-                <tableViewController storyboardIdentifier="ContactInfoViewController" id="1cX-ru-Vw7" customClass="ContactInfoViewController" customModule="ColumnsDemo" customModuleProvider="target" sceneMemberID="viewController">
-                    <tableView key="view" clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="grouped" separatorStyle="default" rowHeight="-1" estimatedRowHeight="-1" sectionHeaderHeight="18" sectionFooterHeight="18" id="kTN-iy-QqC">
+                <tableViewController storyboardIdentifier="ContactInfoViewController" id="1cX-ru-Vw7" customClass="ContactInfoViewController" customModule="ColumnViewDemo" customModuleProvider="target" sceneMemberID="viewController">
+                    <tableView key="view" clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="-1" estimatedRowHeight="-1" sectionHeaderHeight="28" sectionFooterHeight="28" id="kTN-iy-QqC">
                         <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
-                        <color key="backgroundColor" cocoaTouchSystemColor="groupTableViewBackgroundColor"/>
-                        <inset key="separatorInset" minX="15" minY="0.0" maxX="15" maxY="0.0"/>
+                        <inset key="separatorInset" minX="20" minY="0.0" maxX="20" maxY="0.0"/>
                         <prototypes>
-                            <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" selectionStyle="default" indentationWidth="10" reuseIdentifier="InfoPreviewCell" rowHeight="227" id="CCA-Ph-5L8" customClass="InfoPreviewCell" customModule="ColumnsDemo" customModuleProvider="target">
-                                <rect key="frame" x="0.0" y="55.5" width="414" height="227"/>
+                            <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" selectionStyle="default" indentationWidth="10" reuseIdentifier="InfoPreviewCell" rowHeight="227" id="CCA-Ph-5L8" customClass="InfoPreviewCell" customModule="ColumnViewDemo" customModuleProvider="target">
+                                <rect key="frame" x="0.0" y="28" width="414" height="227"/>
                                 <autoresizingMask key="autoresizingMask"/>
                                 <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" preservesSuperviewLayoutMargins="YES" insetsLayoutMarginsFromSafeArea="NO" tableViewCell="CCA-Ph-5L8" id="Xti-r5-xYc">
                                     <rect key="frame" x="0.0" y="0.0" width="414" height="227"/>
@@ -161,7 +160,7 @@
                                 </connections>
                             </tableViewCell>
                             <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" selectionStyle="default" indentationWidth="10" reuseIdentifier="KeyValueCell" textLabel="Umj-Uu-cQL" detailTextLabel="OYj-I4-jkM" style="IBUITableViewCellStyleValue1" id="yK9-2h-2xg">
-                                <rect key="frame" x="0.0" y="282.5" width="414" height="43.5"/>
+                                <rect key="frame" x="0.0" y="255" width="414" height="43.5"/>
                                 <autoresizingMask key="autoresizingMask"/>
                                 <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" preservesSuperviewLayoutMargins="YES" insetsLayoutMarginsFromSafeArea="NO" tableViewCell="yK9-2h-2xg" id="mcg-o3-6b9">
                                     <rect key="frame" x="0.0" y="0.0" width="414" height="43.5"/>
@@ -198,7 +197,7 @@
         <!--Navigation Controller-->
         <scene sceneID="I42-N0-0rm">
             <objects>
-                <navigationController automaticallyAdjustsScrollViewInsets="NO" id="pSI-d9-JQd" customClass="NavigationController" customModule="ColumnsDemo" customModuleProvider="target" sceneMemberID="viewController">
+                <navigationController automaticallyAdjustsScrollViewInsets="NO" id="pSI-d9-JQd" customClass="NavigationController" customModule="ColumnViewDemo" customModuleProvider="target" sceneMemberID="viewController">
                     <toolbarItems/>
                     <navigationBar key="navigationBar" contentMode="scaleToFill" insetsLayoutMarginsFromSafeArea="NO" id="GOx-nw-iLi">
                         <rect key="frame" x="0.0" y="44" width="414" height="44"/>
