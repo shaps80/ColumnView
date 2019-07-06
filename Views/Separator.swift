@@ -1,7 +1,7 @@
 import UIKit
 import ColumnView
 
-final class SeparatorView: ColumnSeparator {
+final class SeparatorView: ColumnSeparatorView {
 
     private let pill = Pill()
     

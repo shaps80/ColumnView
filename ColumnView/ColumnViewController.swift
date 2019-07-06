@@ -38,7 +38,7 @@ open class ColumnViewController: UIViewController {
     open var automaticallyAdjustsToolbarItems: Bool = true
     
     /// The cached separator views
-    private var separatorViews: [UIViewController: ColumnSeparator] = [:]
+    private var separatorViews: [UIViewController: ColumnSeparatorView] = [:]
     
     /// The thickness to use for the separator in-between each controller.
     /// If `separatorClass != nil` and the view provides either an `intrinsicContentSize` or autolayout constraints,
@@ -58,7 +58,7 @@ open class ColumnViewController: UIViewController {
     }
     
     // Returns a new instance of the default separator view
-    private func makeDefaultSeparatorView() -> ColumnSeparator {
+    private func makeDefaultSeparatorView() -> ColumnSeparatorView {
         let view = _ColumnSeparator(frame: .zero)
         view.backgroundColor = separatorColor
         view.autoresizingMask = .flexibleHeight
@@ -67,7 +67,7 @@ open class ColumnViewController: UIViewController {
     
     /// If `separatorClass != nil` a new instance of that class will be return, otherwise this method
     /// calls `makeDefaultSeparatorView()`
-    private func makeSeparatorView(for controller: UIViewController) -> ColumnSeparator {
+    private func makeSeparatorView(for controller: UIViewController) -> ColumnSeparatorView {
         let separator = controller.columnSeparatorView() ?? makeDefaultSeparatorView()
         separator.columnViewController = columnNavigationController?.columnViewController
         return separator
@@ -311,7 +311,7 @@ open class ColumnViewController: UIViewController {
         return frame
     }
     
-    private func separator(for index: Int) -> ColumnSeparator {
+    private func separator(for index: Int) -> ColumnSeparatorView {
         let controller = viewControllers[index]
         let separator = separatorViews[controller] ?? makeSeparatorView(for: controller)
         separatorViews[controller] = separator
@@ -361,18 +361,16 @@ open class ColumnViewController: UIViewController {
     }
     
     private var isUpdating: Bool = false
-    private var _overscrollAmount: CGFloat = 0
+    
     internal func beginUpdating() {
-        _overscrollAmount = overscrollAmount
-        overscrollAmount = view.bounds.width
         isUpdating = true
-        columnView.panGestureRecognizer.isEnabled = false
+        columnView.isScrollEnabled = false
     }
+    
     internal func endUpdating() {
         isUpdating = false
-        overscrollAmount = _overscrollAmount
+        columnView.isScrollEnabled = true
         setNeedsColumnLayoutUpdate()
-        columnView.panGestureRecognizer.isEnabled = true
     }
     
     /// Scrolls the specified controller into view
@@ -486,6 +484,7 @@ private final class ColumnsScrollsView: UIScrollView {
         delaysContentTouches = true
         panGestureRecognizer.delaysTouchesBegan = true
         panGestureRecognizer.cancelsTouchesInView = false
+        canCancelContentTouches = false
     }
     
     required init?(coder: NSCoder) {

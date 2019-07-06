@@ -25,6 +25,9 @@ class ResizableViewController: UITableViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        // we do this to prevent the flashing of the indicators, its a little distracting with this kind of layout
+        tableView.showsVerticalScrollIndicator = false
+        
         /*
          This is a fairly rudimentary approach but essentially we want to start all new instances
          with the users stored default value. This allows multiple windows to have separate 'live'
@@ -40,6 +43,11 @@ class ResizableViewController: UITableViewController {
         
         // we need to restore our last saved value to ensure our view is in-sync with our model
         columnWidth = CGFloat(UserDefaults.standard.float(forKey: userDefaultsKey))
+    }
+    
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        tableView.showsVerticalScrollIndicator = false
     }
     
     private var _columnWidth: CGFloat = 0
@@ -70,7 +78,7 @@ class ResizableViewController: UITableViewController {
         return columnWidth
     }
     
-    override func columnSeparatorView() -> ColumnSeparator? {
+    override func columnSeparatorView() -> ColumnSeparatorView? {
         let view = SeparatorView()
         view.delegate = self
         return view
@@ -80,7 +88,7 @@ class ResizableViewController: UITableViewController {
 
 extension ResizableViewController: ColumnSeparatorDelegate {
     
-    func columnSeparator(_ separator: ColumnSeparator, didAdjustBy delta: CGFloat) {
+    func columnSeparator(_ separator: ColumnSeparatorView, didAdjustBy delta: CGFloat) {
         let width = self.columnWidth + delta
         self.columnWidth = max(self.minimumColumnWidth, min(self.maximumColumnWidth, width))
         self.setNeedsColumnLayoutUpdate()

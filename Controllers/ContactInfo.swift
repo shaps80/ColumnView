@@ -4,10 +4,6 @@ final class ContactInfoViewController: UITableViewController {
     
     var contact: Contact!
     
-    override var preferredColumnWidth: CGFloat {
-        return 400
-    }
-    
     override func viewDidLoad() {
         super.viewDidLoad()
         title = contact.name

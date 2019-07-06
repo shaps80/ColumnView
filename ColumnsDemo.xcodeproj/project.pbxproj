@@ -27,6 +27,7 @@
 		54BA7F9E22D017AC004060DB /* Contacts.swift in Sources */ = {isa = PBXBuildFile; fileRef = 54BA7F9D22D017AC004060DB /* Contacts.swift */; };
 		54BA7FA122D017C3004060DB /* Groups.swift in Sources */ = {isa = PBXBuildFile; fileRef = 54BA7FA022D017C3004060DB /* Groups.swift */; };
 		54DC50E622D0B21C008889A7 /* Separator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 54BA7FA222D017F5004060DB /* Separator.swift */; };
+		54DC50E822D0BD14008889A7 /* ColumnSeparatorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 54DC50E722D0BD14008889A7 /* ColumnSeparatorView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -77,6 +78,7 @@
 		54BA7F9D22D017AC004060DB /* Contacts.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Contacts.swift; sourceTree = "<group>"; };
 		54BA7FA022D017C3004060DB /* Groups.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Groups.swift; sourceTree = "<group>"; };
 		54BA7FA222D017F5004060DB /* Separator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Separator.swift; sourceTree = "<group>"; };
+		54DC50E722D0BD14008889A7 /* ColumnSeparatorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ColumnSeparatorView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -158,6 +160,7 @@
 				542F025D22CA41F8000FEF00 /* ColumnView.h */,
 				542F026922CA4320000FEF00 /* ColumnNavigationController.swift */,
 				542F026B22CA83AD000FEF00 /* ColumnViewController.swift */,
+				54DC50E722D0BD14008889A7 /* ColumnSeparatorView.swift */,
 				547631B522CF9DEC0062EEB4 /* UIKit+Extensions.swift */,
 				542F025E22CA41F8000FEF00 /* Info.plist */,
 			);
@@ -309,6 +312,7 @@
 			files = (
 				542F026C22CA83AD000FEF00 /* ColumnViewController.swift in Sources */,
 				542F026A22CA4320000FEF00 /* ColumnNavigationController.swift in Sources */,
+				54DC50E822D0BD14008889A7 /* ColumnSeparatorView.swift in Sources */,
 				547631B622CF9DEC0062EEB4 /* UIKit+Extensions.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
