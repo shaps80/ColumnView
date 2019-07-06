@@ -14,7 +14,7 @@ class ResizableViewController: UITableViewController {
     
     /// Set this to `true` to have all columns adjust their widths at the same
     /// time to the same value automatically.
-    private let resizeColumnsUniformly: Bool = true
+    private let resizeColumnsUniformly: Bool = false
     
     private var userDefaultsKey: String {
         return resizeColumnsUniformly
@@ -63,11 +63,8 @@ class ResizableViewController: UITableViewController {
         set {
             _columnWidth = newValue
             
-            if resizeColumnsUniformly {
-                /// in order to have all controllers resize, we need to update our defaults immediately
-                UserDefaults.standard.setValue(_columnWidth, forKey: userDefaultsKey)
-                UserDefaults.standard.synchronize()
-            }
+            UserDefaults.standard.setValue(_columnWidth, forKey: userDefaultsKey)
+            UserDefaults.standard.synchronize()
         }
     }
     
