@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="14835.7" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
+    <device id="retina6_1" orientation="portrait" appearance="light"/>
+    <dependencies>
+        <deployment identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="14790.5"/>
+        <capability name="Safe area layout guides" minToolsVersion="9.0"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+        <capability name="iOS 13.0 system colors" minToolsVersion="11.0"/>
+    </dependencies>
+    <objects>
+        <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner"/>
+        <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
+        <viewController id="nqH-xG-8fP" customClass="PlaceholderViewController" customModule="ColumnViewDemo" customModuleProvider="target">
+            <view key="view" contentMode="scaleToFill" id="DbD-tJ-eac">
+                <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
+                <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                <subviews>
+                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Select a Group" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontForContentSizeCategory="YES" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="TbV-wE-bD2">
+                        <rect key="frame" x="143" y="436" width="128" height="24"/>
+                        <fontDescription key="fontDescription" style="UICTFontTextStyleTitle3"/>
+                        <color key="textColor" cocoaTouchSystemColor="placeholderTextColor"/>
+                        <nil key="highlightedColor"/>
+                    </label>
+                </subviews>
+                <constraints>
+                    <constraint firstItem="TbV-wE-bD2" firstAttribute="centerY" secondItem="DbD-tJ-eac" secondAttribute="centerY" id="See-N5-mYm"/>
+                    <constraint firstItem="TbV-wE-bD2" firstAttribute="centerX" secondItem="DbD-tJ-eac" secondAttribute="centerX" id="pz2-HR-xCB"/>
+                </constraints>
+                <viewLayoutGuide key="safeArea" id="5l5-CN-hrk"/>
+            </view>
+            <connections>
+                <outlet property="titleLabel" destination="TbV-wE-bD2" id="Oc6-dw-f7a"/>
+            </connections>
+            <point key="canvasLocation" x="632" y="-3"/>
+        </viewController>
+    </objects>
+</document>

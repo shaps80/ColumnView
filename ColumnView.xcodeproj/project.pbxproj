@@ -30,6 +30,8 @@
 		54DC50E822D0BD14008889A7 /* ColumnSeparatorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 54DC50E722D0BD14008889A7 /* ColumnSeparatorView.swift */; };
 		54DC50EC22D112FB008889A7 /* ReusableViewNibLoadable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 54DC50EB22D112FB008889A7 /* ReusableViewNibLoadable.swift */; };
 		54DC50EE22D114CA008889A7 /* SeparatorView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 54DC50E922D11279008889A7 /* SeparatorView.xib */; };
+		54E4C0BE22D8A7CB002C1059 /* PlaceholderViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 54E4C0BD22D8A7CB002C1059 /* PlaceholderViewController.xib */; };
+		54E4C0C022D8B362002C1059 /* PlaceholderViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 54E4C0BF22D8B362002C1059 /* PlaceholderViewController.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -83,6 +85,8 @@
 		54DC50E722D0BD14008889A7 /* ColumnSeparatorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ColumnSeparatorView.swift; sourceTree = "<group>"; };
 		54DC50E922D11279008889A7 /* SeparatorView.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = SeparatorView.xib; sourceTree = "<group>"; };
 		54DC50EB22D112FB008889A7 /* ReusableViewNibLoadable.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ReusableViewNibLoadable.swift; sourceTree = "<group>"; };
+		54E4C0BD22D8A7CB002C1059 /* PlaceholderViewController.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = PlaceholderViewController.xib; sourceTree = "<group>"; };
+		54E4C0BF22D8B362002C1059 /* PlaceholderViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlaceholderViewController.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -178,6 +182,8 @@
 			children = (
 				542F026F22CAC0C9000FEF00 /* Base.swift */,
 				54BA7FA022D017C3004060DB /* Groups.swift */,
+				54E4C0BD22D8A7CB002C1059 /* PlaceholderViewController.xib */,
+				54E4C0BF22D8B362002C1059 /* PlaceholderViewController.swift */,
 				54BA7F9D22D017AC004060DB /* Contacts.swift */,
 				54BA7F9B22D01793004060DB /* ContactInfo.swift */,
 			);
@@ -278,6 +284,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				54E4C0BE22D8A7CB002C1059 /* PlaceholderViewController.xib in Resources */,
 				542F024F22CA4161000FEF00 /* LaunchScreen.storyboard in Resources */,
 				542F024C22CA4161000FEF00 /* Assets.xcassets in Resources */,
 				54DC50EE22D114CA008889A7 /* SeparatorView.xib in Resources */,
@@ -303,6 +310,7 @@
 				542F027822CAC331000FEF00 /* Color+Random.swift in Sources */,
 				54DC50E622D0B21C008889A7 /* SeparatorView.swift in Sources */,
 				54BA7F9A22D0177B004060DB /* Cells.swift in Sources */,
+				54E4C0C022D8B362002C1059 /* PlaceholderViewController.swift in Sources */,
 				542F027622CAC308000FEF00 /* Model.swift in Sources */,
 				542F027422CAC2C1000FEF00 /* Lorem.swift in Sources */,
 				542F027022CAC0C9000FEF00 /* Base.swift in Sources */,

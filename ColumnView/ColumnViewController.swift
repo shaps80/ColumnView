@@ -3,7 +3,7 @@ import UIKit
 /// For most cases you should use the `ColumnsController` class since it automatically manages a UINavigationController as well.
 /// However if preferred, you can also use this class directly to present a horizontally stacked set of controllers that
 /// behaves similarly to UINavigationController but with a presentation closer to column view in Finder or Files (iOS 13)
-open class ColumnViewController: UIViewController {
+open class ColumnViewController: UIViewController, UIScrollViewDelegate {
     
     /// Specifies the various supported scroll behaves
     public enum ScrollBehavior {
@@ -87,6 +87,7 @@ open class ColumnViewController: UIViewController {
     }
     
     private var _viewControllers: [UIViewController] = []
+    private var _currentAccessoryViewController: UIViewController?
     
     /// The view controllers currently on the navigation stack.
     ///
@@ -117,6 +118,7 @@ open class ColumnViewController: UIViewController {
     public override func loadView() {
         super.loadView()
         view = ColumnsScrollsView(frame: .zero)
+        columnView.delegate = self
     }
     
     open override func viewDidLoad() {
@@ -244,6 +246,7 @@ open class ColumnViewController: UIViewController {
             addChild(child)
             child.view.frame = frameForController(at: _viewControllers.count - 1)
             child.view.autoresizingMask = .flexibleHeight
+            child.view.clipsToBounds = true
             columnView.addSubview(child.view)
             child.didMove(toParent: self)
         }
@@ -253,6 +256,8 @@ open class ColumnViewController: UIViewController {
         if traitCollection.layoutDirection == .rightToLeft {
             invalidateContentSize()
         }
+
+        invalidateAccessoryViewController()
     }
     
     /// Removes all children after (and including) the specified index from the navigation stack.
@@ -290,6 +295,8 @@ open class ColumnViewController: UIViewController {
         if traitCollection.layoutDirection == .rightToLeft {
             invalidateContentSize()
         }
+
+        invalidateAccessoryViewController()
         
         return Array(controllers)
     }
@@ -331,6 +338,28 @@ open class ColumnViewController: UIViewController {
         frame.size.height = view.bounds.height
         return frame
     }
+
+    private func maxXForPlaceholder() -> CGFloat {
+        guard isViewLoaded else { return 0 }
+
+        switch traitCollection.layoutDirection {
+        case .rightToLeft:
+            return columnView.bounds.minX
+        default:
+            return frameForSeparator(at: viewControllers.count - 1).maxX
+        }
+    }
+
+    private func frameForAccessory() -> CGRect {
+        guard isViewLoaded else { return .zero }
+        let lastColumnFrame = frameForSeparator(at: viewControllers.count - 1)
+        var frame: CGRect = .zero
+        frame.origin.y = 0
+        frame.origin.x = lastColumnFrame.maxX
+        frame.size.width = max(0, columnView.bounds.maxX - lastColumnFrame.maxX)
+        frame.size.height = view.bounds.height
+        return frame
+    }
     
     private func separator(for index: Int) -> ColumnSeparatorView {
         let controller = viewControllers[index]
@@ -368,6 +397,31 @@ open class ColumnViewController: UIViewController {
         }
         
         return CGRect(x: minX, y: controllerFrame.minY, width: thickness, height: controllerFrame.height)
+    }
+
+    private func invalidateAccessoryViewController() {
+        removeAccessoryViewController()
+        if let controller = viewControllers.last?.columnAccessoryViewController {
+            addAccessoryViewController(controller)
+        }
+    }
+
+    private func addAccessoryViewController(_ controller: UIViewController) {
+        addChild(controller)
+        controller.view.frame = frameForAccessory()
+        controller.view.autoresizingMask = .flexibleHeight
+        controller.view.clipsToBounds = true
+        columnView.addSubview(controller.view)
+        controller.didMove(toParent: self)
+        _currentAccessoryViewController = controller
+    }
+
+    private func removeAccessoryViewController() {
+        guard let controller = _currentAccessoryViewController else { return }
+        controller.willMove(toParent: nil)
+        controller.view.removeFromSuperview()
+        controller.removeFromParent()
+        _currentAccessoryViewController = nil
     }
     
     /// Updates the contentSize and scrolls the top most controller into view
@@ -437,6 +491,12 @@ open class ColumnViewController: UIViewController {
             separator.frame = frameForSeparator(at: $0.offset)
             columnView.addSubview(separator)
         }
+
+        _currentAccessoryViewController?.view.frame = frameForAccessory()
+    }
+
+    public func scrollViewDidScroll(_ scrollView: UIScrollView) {
+        _currentAccessoryViewController?.view.frame = frameForAccessory()
     }
     
     deinit {

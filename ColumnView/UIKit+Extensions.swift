@@ -13,6 +13,14 @@ extension UIViewController {
     @objc open var preferredColumnWidth: CGFloat {
         return columnNavigationController?.columnViewController.defaultColumnWidth ?? 0
     }
+
+    /// If you return a view here, the column view will show this in the remaining space until you push another view on top of it.
+    /// This is useful for showing an empty selection for example.
+    ///
+    /// Note: The view will be 'collapsed' if there is no available space. Furthermore if you support resizing columns, the placeholder will adjust accordingly.
+    @objc open var columnAccessoryViewController: UIViewController? {
+        return nil
+    }
     
     /// In most cases you should not need to call this. However if you want to interactively modify the layout you can call this to prevent unintended
     /// scrolling and animation events. Don't forget to also call `endColumnLayoutUpdate()` to resume event handling
