@@ -45,4 +45,3 @@ final class ContactInfoViewController: UITableViewController {
     }
     
 }
-
