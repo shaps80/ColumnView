@@ -16,6 +16,7 @@ final class GroupsViewController: ResizableViewController {
         super.viewDidLoad()
         title = "Groups"
         tableView.allowsMultipleSelection = true
+        columnNavigationController?.columnViewController.underlyingScrollView.isScrollEnabled = false
     }
     
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {

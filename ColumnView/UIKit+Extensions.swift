@@ -4,7 +4,10 @@ extension UIViewController {
     
     /// Return a custom separator for this controller. This can be useful when you need a custom view or size for a specific controller.
     @objc open func columnSeparatorView() -> ColumnSeparatorView? {
-        return nil
+        let view = _ColumnSeparator(frame: .zero)
+        view.backgroundColor = .defaultColumnSeparator
+        view.autoresizingMask = .flexibleHeight
+        return view
     }
     
     /// The preferred size for the view controller’s view
@@ -22,8 +25,7 @@ extension UIViewController {
         return nil
     }
     
-    /// In most cases you should not need to call this. However if you want to interactively modify the layout you can call this to prevent unintended
-    /// scrolling and animation events. Don't forget to also call `endColumnLayoutUpdate()` to resume event handling
+    /// In most cases you should not need to call this. However if you want to interactively modify the layout you can call this to prevent unintended scrolling and animation events. Don't forget to also call `endColumnLayoutUpdate()` to resume event handling
     public func beginColumnLayoutUpdate() {
         columnNavigationController?.columnViewController.beginUpdating()
     }
@@ -40,9 +42,7 @@ extension UIViewController {
     ///     setNeedsColumnLayoutUpdate()
     public func setNeedsColumnLayoutUpdate() {
         columnNavigationController?.columnViewController.invalidateLayout()
-        
-        /// Refactor to make use of a similar API to `targetContentOffsetForProposedContentOffset`
-        ///
+
         let controller = columnNavigationController?.columnViewController
         let oldWidth = view.layer.presentation()?.bounds.width ?? 0
         let newWidth = preferredColumnWidth
@@ -66,15 +66,5 @@ extension UIViewController {
     
     public var columnNavigationController: ColumnNavigationController? {
         return navigationController as? ColumnNavigationController
-    }
-}
-
-internal extension UIColor {
-    static var defaultColumnSeparator: UIColor {
-        if #available(iOSApplicationExtension 13.0, *) {
-            return UIColor.opaqueSeparator
-        } else {
-            return UIColor(white: 214/255, alpha: 1)
-        }
     }
 }

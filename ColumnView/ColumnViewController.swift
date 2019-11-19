@@ -4,6 +4,13 @@ import UIKit
 /// However if preferred, you can also use this class directly to present a horizontally stacked set of controllers that
 /// behaves similarly to UINavigationController but with a presentation closer to column view in Finder or Files (iOS 13)
 open class ColumnViewController: UIViewController, UIScrollViewDelegate {
+
+    public enum SizingBehaviour {
+        /// The columns will
+        case usesPreferredColumnWidth
+        /// The first column will be used to fill available space while its width is greater than its minimum
+        case fillFirst
+    }
     
     /// Specifies the various supported scroll behaves
     public enum ScrollBehavior {
@@ -15,9 +22,14 @@ open class ColumnViewController: UIViewController, UIScrollViewDelegate {
         /// The controller will do nothing to make the view visible.
         case none
     }
-    
+
+    /// Specifies the sizing behaviour that should be applied to each column. Defaults to `usesPreferredColumnWidth`
+    open var sizingBehaviour: SizingBehaviour = .usesPreferredColumnWidth
+
+    /// Specifies the scrolling behaviour to apply apply when the bounds changes. Defaults to `automatic`
     open var scrollBehavior: ScrollBehavior = .automatic
-    
+
+    /// Specifies the amount of overscroll that will be allowed beyond the content size. Defaults to `0`
     open var overscrollAmount: CGFloat = 0 {
         didSet { invalidateContentSize() }
     }
@@ -27,7 +39,7 @@ open class ColumnViewController: UIViewController, UIScrollViewDelegate {
         return columnView
     }
     
-    /// The width to use for each column that presents a controller
+    /// The width to use for each column that presents a controller. Defaults to `320`
     open var defaultColumnWidth: CGFloat = 320 {
         didSet { invalidateLayout() }
     }
@@ -57,18 +69,10 @@ open class ColumnViewController: UIViewController, UIScrollViewDelegate {
         }
     }
     
-    // Returns a new instance of the default separator view
-    private func makeDefaultSeparatorView() -> ColumnSeparatorView {
-        let view = _ColumnSeparator(frame: .zero)
-        view.backgroundColor = separatorColor
-        view.autoresizingMask = .flexibleHeight
-        return view
-    }
-    
     /// If `separatorClass != nil` a new instance of that class will be return, otherwise this method
     /// calls `makeDefaultSeparatorView()`
-    private func makeSeparatorView(for controller: UIViewController) -> ColumnSeparatorView {
-        let separator = controller.columnSeparatorView() ?? makeDefaultSeparatorView()
+    private func makeSeparatorView(for controller: UIViewController) -> ColumnSeparatorView? {
+        guard let separator = controller.columnSeparatorView() else { return nil }
         separator.columnViewController = columnNavigationController?.columnViewController
         return separator
     }
@@ -252,11 +256,7 @@ open class ColumnViewController: UIViewController, UIScrollViewDelegate {
         }
         
         invalidateBarItems()
-        
-        if traitCollection.layoutDirection == .rightToLeft {
-            invalidateContentSize()
-        }
-
+        invalidateLayout()
         invalidateAccessoryViewController()
     }
     
@@ -291,11 +291,7 @@ open class ColumnViewController: UIViewController, UIScrollViewDelegate {
         
         _viewControllers.removeSubrange(range)
         invalidateBarItems()
-        
-        if traitCollection.layoutDirection == .rightToLeft {
-            invalidateContentSize()
-        }
-
+        invalidateLayout()
         invalidateAccessoryViewController()
         
         return Array(controllers)
@@ -323,9 +319,21 @@ open class ColumnViewController: UIViewController, UIScrollViewDelegate {
     private func widthForController(at index: Int) -> CGFloat {
         guard isViewLoaded else { return 0 }
         guard viewControllers.indices.contains(index) else { return 0 }
+
         let controller = viewControllers[index]
         let preferred = controller.preferredColumnWidth
-        return preferred > 0 ? preferred : defaultColumnWidth
+        var width = preferred > 0 ? preferred : defaultColumnWidth
+
+        switch sizingBehaviour {
+        case .fillFirst where index == 0:
+            let remainingControllers = viewControllers.dropFirst()
+            let requiredWidth = remainingControllers.indices.reduce(0, { $0 + widthForController(at: $1) })
+            width = view.bounds.width - requiredWidth
+        case .usesPreferredColumnWidth, .fillFirst:
+            break
+        }
+
+        return width
     }
     
     /// Returns the frame for the controller at the specified index
@@ -351,7 +359,7 @@ open class ColumnViewController: UIViewController, UIScrollViewDelegate {
     }
 
     private func frameForAccessory() -> CGRect {
-        guard isViewLoaded else { return .zero }
+        guard isViewLoaded, !viewControllers.isEmpty else { return .zero }
         let lastColumnFrame = frameForSeparator(at: viewControllers.count - 1)
         var frame: CGRect = .zero
         frame.origin.y = 0
@@ -361,15 +369,15 @@ open class ColumnViewController: UIViewController, UIScrollViewDelegate {
         return frame
     }
     
-    private func separator(for index: Int) -> ColumnSeparatorView {
+    private func separator(for index: Int) -> ColumnSeparatorView? {
         let controller = viewControllers[index]
-        let separator = separatorViews[controller] ?? makeSeparatorView(for: controller)
+        guard let separator = separatorViews[controller] ?? makeSeparatorView(for: controller) else { return nil }
         separatorViews[controller] = separator
         return separator
     }
     
     private func thicknessForSeparator(at index: Int) -> CGFloat {
-        let separator = self.separator(for: index)
+        guard let separator = self.separator(for: index) else { return 0 }
         
         if separator is _ColumnSeparator {
             return defaultSeparatorThickness
@@ -487,7 +495,7 @@ open class ColumnViewController: UIViewController, UIScrollViewDelegate {
         
         _viewControllers.enumerated().forEach {
             $0.element.view.frame = frameForController(at: $0.offset)
-            let separator = self.separator(for: $0.offset)
+            guard let separator = self.separator(for: $0.offset) else { return }
             separator.frame = frameForSeparator(at: $0.offset)
             columnView.addSubview(separator)
         }
@@ -571,7 +579,7 @@ private final class ColumnsScrollsView: UIScrollView {
         
         showsVerticalScrollIndicator = false
         showsHorizontalScrollIndicator = true
-        alwaysBounceHorizontal = true
+        alwaysBounceHorizontal = false
         alwaysBounceVertical = false
         contentInsetAdjustmentBehavior = .never
         delaysContentTouches = true
@@ -584,4 +592,14 @@ private final class ColumnsScrollsView: UIScrollView {
         fatalError("init(coder:) has not been implemented")
     }
     
+}
+
+internal extension UIColor {
+    static var defaultColumnSeparator: UIColor {
+        if #available(iOSApplicationExtension 13.0, *) {
+            return UIColor.opaqueSeparator
+        } else {
+            return UIColor(white: 214/255, alpha: 1)
+        }
+    }
 }

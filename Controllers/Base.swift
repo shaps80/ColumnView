@@ -72,18 +72,20 @@ class ResizableViewController: UITableViewController {
             UserDefaults.standard.synchronize()
         }
     }
-    
+
     private var minimumColumnWidth: CGFloat = 200
     private var maximumColumnWidth: CGFloat = 600
     
     override var preferredColumnWidth: CGFloat {
         return columnWidth
     }
-    
+
     override func columnSeparatorView() -> ColumnSeparatorView? {
-        let view = SeparatorView.fromNib
-        view.delegate = self
-        return view
+        guard let nav = columnNavigationController, nav.childCount > 1 else { return nil }
+        return super.columnSeparatorView()
+        //        let view = SeparatorView.fromNib1
+//        view.delegate = self
+//        return view
     }
     
 }
